@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="ac/biu/nlp/nlp/datasets/ace/AceObject.java|ac/biu/nlp/nlp/datasets/ace/AceObjectMention.java" kind="src" path="src"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwnl14-rc2/lib/commons-logging.jar"/>
+	<classpathentry exported="true" kind="var" path="JARS/log4j-1.2.15.jar" sourcepath="/TPS/apache-log4j-1.2.15/src"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwnl14-rc2/lib/junit-4.1.jar"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwsdp-2.2.1/lib/jaxb-xjc.jar"/>
+	<classpathentry kind="var" path="JARS/stanford-ner/stanford-ner-2008-05-07.jar"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwnl14-rc2/jwnl.jar" sourcepath="/TPS/jwnl14-rc2/src"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwsdp-2.2.1/lib/jaxb1-impl.jar"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwsdp-2.2.1/lib/jaxb-api.jar"/>
+	<classpathentry exported="true" kind="var" path="JARS/jwsdp-2.2.1/lib/jaxb-impl.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JARS/javamail-1.4.1/mail.jar"/>
+	<classpathentry kind="var" path="JARS/activation.jar"/>
+	<classpathentry kind="var" path="JARS/gate.jar" sourcepath="/TPS/gate-3.1-build2270-SRC/src"/>
+	<classpathentry kind="var" path="JARS/opennlp-tools-1.3.0.jar" sourcepath="/TPS/opennlp-tools-1.3.0/src"/>
+	<classpathentry kind="var" path="JARS/opennlp-tools-1.3.0/lib/maxent-2.4.0.jar"/>
+	<classpathentry kind="var" path="JARS/stanford-postagger-full-2008-09-28/stanford-postagger-2008-09-28.jar"/>
+	<classpathentry kind="var" path="JARS/opennlp-tools-1.3.0/lib/trove.jar"/>
+	<classpathentry kind="var" path="JARS/lingpipe-3.1.1.jar"/>
+	<classpathentry kind="var" path="JARS/mysql-connector-java-5.1.12-bin.jar" sourcepath="/TPS/mysql-connector-java-5.1.15/src"/>
+	<classpathentry kind="var" path="JARS/arkref/arkref.jar" sourcepath="/TPS/arkref_20110321/arkref.jar"/>
+	<classpathentry kind="var" path="JARS/arkref/commons-lang-2.4.jar"/>
+	<classpathentry kind="var" path="JARS/arkref/stanford-parser-2008-10-26.jar"/>
+	<classpathentry kind="var" path="JARS/arkref/supersense-tagger.jar"/>
+	<classpathentry kind="var" path="JARS/BiuNormalizer/biu-normalizer_v0.6.1.jar"/>
+	<classpathentry kind="var" path="JARS/collections-generic-4.01.jar" sourcepath="/TPS/collections-generic-4.01"/>
+	<classpathentry kind="var" path="JARS/extjwnl-1.6.3/lib/concurrentlinkedhashmap-lru-1.2.jar"/>
+	<classpathentry kind="var" path="JARS/extjwnl-1.6.3/lib/extjwnl-1.6.3.jar" sourcepath="/TPS/extjwnl-1.6.3/src"/>
+	<classpathentry kind="var" path="JARS/jwktl-0.14.1/lib/je-4.1.10.jar"/>
+	<classpathentry kind="var" path="JARS/jwi_2.2.2/edu.mit.jwi_2.2.2_jdk.jar"/>
+	<classpathentry kind="var" path="JARS/jwktl-0.14.1/lib/jwktl-0.14.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/B:/tps/jwktl-0.14.1/docs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="JARS/lucene_3.1.0/lucene-core-3.1.0.jar" sourcepath="/TPS/lucene_3.1.0/src"/>
+	<classpathentry kind="var" path="JARS/morphadorner/morphadorner.jar"/>
+	<classpathentry kind="var" path="JARS/morphadorner/icu4j_3_6_1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
