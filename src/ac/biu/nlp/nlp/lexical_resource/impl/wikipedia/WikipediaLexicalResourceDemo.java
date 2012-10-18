@@ -34,9 +34,9 @@ public class WikipediaLexicalResourceDemo {
 		System.out.println("Start \n*****************************\n");
 	
 
-		String lLemma = "wednesday";
+		String lLemma = "physics";
 		PartOfSpeech pos2 = new UnspecifiedPartOfSpeech(CanonicalPosTag.NOUN);
-		String rLemma = "Microsoft Windows";
+		String rLemma = "science";
 		System.out.println("Looking for all rules from \"" + lLemma + "\" to \"" + rLemma + "\"");
 		
 		// test Wikipedia
