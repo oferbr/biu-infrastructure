@@ -9,6 +9,7 @@ import ac.biu.nlp.nlp.instruments.dictionary.wordnet.Dictionary;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.WordNetInitializationException;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.WordnetDictionaryImplementationType;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.ext_jwnl.ExtJwnlDictionary;
+import ac.biu.nlp.nlp.instruments.dictionary.wordnet.jmwn.JmwnDictionaryManager;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.jwi.JwiDictionary;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.jwnl.JwnlDictionaryManager;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.jwnl.JwnlDictionaryManager.JwnlDictionaryManagementType;
@@ -41,6 +42,9 @@ public class WordNetDictionaryFactory {
 				return new JwnlDictionaryManager(JwnlDictionaryManagementType.DISK, JwnlDictionarySupportedVersion.VER_30, wnDictionaryDir).newDictionary();
 			case EXT_JWNL:
 				return new ExtJwnlDictionary(wnDictionaryDir);
+			case JMWN:
+				// wnDictionaryDir should be here the jMultiWordNet config file
+				return new JmwnDictionaryManager(wnDictionaryDir).newDictionary();
 			default:
 				throw new WordNetInitializationException("Unsupported WordnetDictionaryImplementationType: " + wordnetDictionaryImplementation + 
 						". Add code here to supprt it.");

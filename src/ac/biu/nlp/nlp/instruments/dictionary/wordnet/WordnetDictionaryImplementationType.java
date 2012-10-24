@@ -11,5 +11,5 @@ package ac.biu.nlp.nlp.instruments.dictionary.wordnet;
  */
 public enum WordnetDictionaryImplementationType {
 
-	JWI, JWNL, EXT_JWNL
+	JWI, JWNL, EXT_JWNL, JMWN
 }

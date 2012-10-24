@@ -38,8 +38,8 @@
 	<classpathentry kind="var" path="JARS/lucene_3.1.0/lucene-core-3.1.0.jar" sourcepath="/TPS/lucene_3.1.0/src"/>
 	<classpathentry kind="var" path="JARS/morphadorner/morphadorner.jar"/>
 	<classpathentry kind="var" path="JARS/morphadorner/icu4j_3_6_1.jar"/>
-	<classpathentry kind="var" path="JARS"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/core"/>
+	<classpathentry kind="lib" path="/hardmnt/destromath0/home/nastase/Project/EXC/repositories/biu-jars/JMWN.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
