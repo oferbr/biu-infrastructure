@@ -43,7 +43,7 @@ public class WordNetLexicalResourceDemo {
 			return;
 		}
 		String configurationFileName = args[0];
-		String moduleName = "WNV2";
+		String moduleName = "JMWN"; // "WNV2";
 		if (args.length>=2)
 		{
 			moduleName = args[1];
@@ -51,14 +51,15 @@ public class WordNetLexicalResourceDemo {
 		System.out.println("Using module name: "+moduleName);
 	
 
-		String lLemma = "peach";
+		String lLemma = "mela"; // "peach";
 		PartOfSpeech pos1 = new UnspecifiedPartOfSpeech(CanonicalPosTag.NOUN);
 		PartOfSpeech pos2 = new UnspecifiedPartOfSpeech(CanonicalPosTag.NOUN);
-		String rLemma = "fruit";
+		String rLemma = "frutta"; // "fruit";
 		System.out.println("Looking for all rules from \"" + lLemma + "\" to \"" + rLemma + "\"");
 		
 		// test WN
-		System.out.println("\nFrom the new WN:");
+//		System.out.println("\nFrom the new WN:");
+		System.out.println("\nFrom JMWN:");
 		
 		ConfigurationFile  confFile = new ConfigurationFile(new File(configurationFileName));
 		confFile.setExpandingEnvironmentVariables(true);
