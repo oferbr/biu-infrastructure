@@ -47,7 +47,7 @@ public class TestWordNetLexicalResourceWithWrapper {
 	private static final Boolean L_USE_ONLY_FIRST_SENSE = true;
 	
 	// Right Side
-	private static final String R_LEMMA = "big cat";
+	private static final String R_LEMMA = "feline";
 	private static final CanonicalPosTag R_CANONICAL_POS = CanonicalPosTag.N;
 	private static final Boolean R_USE_ONLY_FIRST_SENSE = true;
 	
@@ -63,7 +63,7 @@ public class TestWordNetLexicalResourceWithWrapper {
 			//WordNetRelation.DERIVED, //technically DERIVED is also entailing, but it is not implemented in the current wrapper 
 	}));
 	
-	public static void main(String[] args) throws LexicalResourceException, UnsupportedPosTagStringException, ac.biu.nlp.nlp.lexical_resource.LexicalResourceException
+	public static void main(String[] args)  throws LexicalResourceException, UnsupportedPosTagStringException, ac.biu.nlp.nlp.lexical_resource.LexicalResourceException
 	{
 		System.out.println("WordNet test - Start \n*****************************\n");
 		if (args.length != 1)
