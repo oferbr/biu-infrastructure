@@ -150,7 +150,7 @@ public class ArkrefClient
 			}
 			catch(RuntimeException e)
 			{
-				throw new ArkrefClientException("ArkRef failed due to a runtime exception:",e);
+				throw new ArkrefClientException("ArkRef failed due to a runtime exception. Text is:\n"+this.text+"\nSee nested exception.",e);
 			}
 
 			// Process ArkRef's result, to get List<WordWithCoreferenceTag>

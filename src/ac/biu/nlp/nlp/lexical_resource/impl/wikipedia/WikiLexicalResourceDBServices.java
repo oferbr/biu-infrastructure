@@ -28,8 +28,8 @@ import ac.biu.nlp.nlp.representation.UnsupportedPosTagStringException;
  * This service class wraps the access to the Wikipedia mysql DB, and is supposed to be used only by {@link WikiLexicalResource}. That's why 
  * the visibility of exported methods is package, so no other class can access this one.
  * <p>
- * <b>NOTE</b> Wiki supports only nouns. In case the user gives a POS that is not a noun nor null, the class returns a an empty list (not null). 
- * 
+ * <b>NOTE</b> Wiki supports only nouns. In case the user gives a POS that is not a noun nor null, the class returns a an empty list (not null).<br> 
+ * <b>NOTE 2</b> This class is not thread safe, if you need multi-threaded code consider using {@link WikiLexicalResourceDBServicesThreadSafe}.
  * @author Amnon Lotan
  *
  * @since Jan 11, 2012
@@ -50,6 +50,8 @@ public class WikiLexicalResourceDBServices {
 	private final PreparedStatement getRulesFromLeftStmt2;
 	private final PreparedStatement getRulesFromRightAndLeftStmt;
 	private final PreparedStatement getHeadRuleStmt;
+	
+	private Connection con;
 
 	//////////////////////////////////////////// SQL infrastructure for this class	/////////////////////////////////////////////////////////////////////
 
@@ -128,7 +130,7 @@ public class WikiLexicalResourceDBServices {
 		// setup the prepared statements
 		try {
 			Class.forName(JDBC_DRIVER_CLASS).newInstance();
-			Connection con;
+//			Connection con;
 			if (dbUser != null && dbPassword != null)
 				con = DriverManager.getConnection(dbConnectionString, dbUser, dbPassword);
 			else
@@ -140,13 +142,13 @@ public class WikiLexicalResourceDBServices {
 			getHeadRuleStmt = con.prepareStatement(FIND_HEAD_RULE_QUERY);
 			getRulesFromRightAndLeftStmt = con.prepareStatement(GET_RULES_FROM_RIGTH_AND_LEFT_QUERY);
 		} catch (SQLException e) {
-			throw new LexicalResourceException("error in establishing a connection to " + dbConnectionString +" "+dbUser+" "+dbPassword);
+			throw new LexicalResourceException("error in establishing a connection to " + dbConnectionString +" "+dbUser+" "+dbPassword,e);
 		} catch (InstantiationException e) {
-			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString());
+			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString(),e);
 		} catch (IllegalAccessException e) {
-			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString());
+			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString(),e);
 		} catch (ClassNotFoundException e) {
-			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString());
+			throw new LexicalResourceException("Could not instantiate the JDBC driver: " + JDBC_DRIVER_CLASS + " " + e.toString(),e);
 		}
 
 		COOCURENCE_THRESHOLD = cocurrence_threshold;	// may be null
@@ -165,6 +167,7 @@ public class WikiLexicalResourceDBServices {
 	List<LexicalRule<? extends WikiRuleInfo>> getRulesForSideImpl(	String lemma, boolean getRulesFromRight) throws LexicalResourceException 
 	{
 		List<LexicalRule<? extends WikiRuleInfo>> rules = new ArrayList<LexicalRule<? extends WikiRuleInfo>>();
+		String query = null;
 		try {
 			// set the "get rule for side" statement and execute it
 			PreparedStatement stmt;
@@ -182,6 +185,7 @@ public class WikiLexicalResourceDBServices {
 				if( COOCURENCE_THRESHOLD == null){
 					getRulesFromLeftStmt.setString(1, lemma);
 					stmt = getRulesFromLeftStmt;
+//					System.out.println(stmt.toString());
 				}else{
 					//add the co-occurrence filter threshold to DB query - more accurate rules - retrieve less rules - improve run time
 					getRulesFromLeftStmt2.setString(1, lemma);
@@ -192,6 +196,7 @@ public class WikiLexicalResourceDBServices {
 			}
 //			Date s = new Date();
 			ResultSet resultSet = stmt.executeQuery();
+//			System.out.println("[WikiLexRes] "+query);
 //			Date e = new Date();
 //			System.out.println("    WikipediaLexicalResource - after executeQuery "+(e.getTime() - s.getTime())+"\t"+stmt.toString());
 			// make a new rule from every result row
@@ -202,7 +207,7 @@ public class WikiLexicalResourceDBServices {
 			}
 			resultSet.close();
 		} catch (SQLException e) {
-			throw new LexicalResourceException("Error executing sql query. See nested", e);
+			throw new LexicalResourceException("Error executing sql query: "+query+" See nested", e);
 		}
 		
 		// sort rules in descending rank and coocurrence order

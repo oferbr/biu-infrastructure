@@ -34,9 +34,16 @@ public class SerializationDemo
 			outputStream.writeObject(tree);
 			outputStream.close();
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(args[3])));
-			BasicNode reproducedTree = (BasicNode) inputStream.readObject();
-			TreeDotFileGenerator<Info> tdfg2 = new TreeDotFileGenerator<Info>(new LemmaPosRelNodeAndEdgeString(), reproducedTree, "reproduced", new File(args[2]));
-			tdfg2.generate();
+			try
+			{
+				BasicNode reproducedTree = (BasicNode) inputStream.readObject();
+				TreeDotFileGenerator<Info> tdfg2 = new TreeDotFileGenerator<Info>(new LemmaPosRelNodeAndEdgeString(), reproducedTree, "reproduced", new File(args[2]));
+				tdfg2.generate();
+			}
+			finally
+			{
+				inputStream.close();
+			}
 		}
 		catch(Exception e)
 		{

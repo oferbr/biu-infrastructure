@@ -155,6 +155,8 @@ public class ParseTreeUtils {
 				}
 				argumentLists.add(getEntailedModifiersOf(child));
 				break;
+			default:
+				break;
 			}
 		}
 

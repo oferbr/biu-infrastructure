@@ -16,6 +16,7 @@ import net.didion.jwnl.data.list.PointerTargetNode;
 import net.didion.jwnl.data.list.PointerTargetNodeList;
 import net.didion.jwnl.data.list.PointerTargetTreeNode;
 import net.didion.jwnl.data.list.PointerTargetTreeNodeList;
+import ac.biu.nlp.nlp.instruments.dictionary.wordnet.EnglishWordnetLexicographerFileRetriever;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.LexicographerFileInformation;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.SensedWord;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.Synset;
@@ -314,7 +315,7 @@ public class JwnlSynset implements Synset
 	@Override
 	public LexicographerFileInformation getLexicographerFileInformation() throws WordNetException
 	{
-		return LexicographerFileInformation.get((int)this.realSynset.getLexFileId());
+		return EnglishWordnetLexicographerFileRetriever.get((int)this.realSynset.getLexFileId());
 	}
 
 	

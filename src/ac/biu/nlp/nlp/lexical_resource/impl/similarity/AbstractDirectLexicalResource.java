@@ -47,7 +47,8 @@ public abstract class AbstractDirectLexicalResource extends AbstractSimilarityLe
 	private static final String SIM_COL = "score";
 	private static final String JDBC_DRIVER_CLASS = "com.mysql.jdbc.Driver";
 
-	private Connection con;
+//	private Connection con;
+	protected Connection con;
 	
 	private final Set<PreparedStatementAndPos> ALL_SCORES_STMTS = new HashSet<PreparedStatementAndPos>();
 	private final Set<PreparedStatementAndPos> NOUN_SCORE_STMT_SET = new HashSet<PreparedStatementAndPos>();
@@ -175,6 +176,8 @@ public abstract class AbstractDirectLexicalResource extends AbstractSimilarityLe
 					return RULES_FOR_RIGHT_STMT_NOUN;
 				case VERB:
 					return RULES_FOR_RIGHT_STMT_VERB;
+			default:
+				break;
 				}
 		}
 		else
@@ -187,6 +190,8 @@ public abstract class AbstractDirectLexicalResource extends AbstractSimilarityLe
 					return RULES_FOR_LEFT_STMT_NOUN;
 				case VERB:
 					return RULES_FOR_LEFT_STMT_VERB;
+			default:
+				break;
 				}
 		}
 		return EMPTY_SET;
@@ -206,6 +211,8 @@ public abstract class AbstractDirectLexicalResource extends AbstractSimilarityLe
 				return NOUN_SCORE_STMT_SET;
 			case VERB:
 				return VERB_SCORE_STMT_SET;
+		default:
+			break;
 		}
 		return EMPTY_SET;
 	}

@@ -83,9 +83,10 @@ public class JwktlSense implements WiktionarySense {
 			wordsList.addAll(realEntry.getAssignedRelatedWords(JwktlUtils.wktRelationToJwktlRelaton(relation), senseNum));
 		
 		// add more words by specialized methods
-		switch (relation)
+		
+		// Asher: December 20, 2012 - Replace the switch by if
+		if (WiktionaryRelation.GLOSS_TERMS.equals(relation))
 		{
-		case GLOSS_TERMS:		
 			List<String> glossTerms;
 			try {
 				glossTerms = glossParser.parseGloss(realEntry.getWord(), getWiktionaryPartOfSpeech().toPartOfSpeech(), realEntry.getGloss(senseNum).getPlainText());
@@ -93,8 +94,20 @@ public class JwktlSense implements WiktionarySense {
 				throw new JwktlException("", e);
 			}
 			wordsList.addAll(glossTerms);
-			break;
 		}
+		
+//		switch (relation)
+//		{
+//		case GLOSS_TERMS:		
+//			List<String> glossTerms;
+//			try {
+//				glossTerms = glossParser.parseGloss(realEntry.getWord(), getWiktionaryPartOfSpeech().toPartOfSpeech(), realEntry.getGloss(senseNum).getPlainText());
+//			} catch (WiktionaryException e) {
+//				throw new JwktlException("", e);
+//			}
+//			wordsList.addAll(glossTerms);
+//			break;
+//		}
 		
 		return new ImmutableListWrapper<String>( JwktlUtils.cleanRelatedWords(wordsList));
 	}

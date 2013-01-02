@@ -6,6 +6,8 @@ import ac.biu.nlp.nlp.representation.PennPartOfSpeech;
 import ac.biu.nlp.nlp.representation.UnsupportedPosTagStringException;
 
 /**
+ * Creates {@link PennPartOfSpeech}
+ * based on the given String representation of the part-of-speech.
  * 
  * @author Asher Stern
  * @since Oct 3, 2012
@@ -13,7 +15,6 @@ import ac.biu.nlp.nlp.representation.UnsupportedPosTagStringException;
  */
 public class PennXmlTreePosFactory implements XmlTreePartOfSpeechFactory
 {
-	@Override
 	public PartOfSpeech createPartOfSpeech(CanonicalPosTag canonicalPosTag,
 			String partOfSpeechRepresentation) throws UnsupportedPosTagStringException
 	{

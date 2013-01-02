@@ -234,35 +234,42 @@ public class LinDistsimLexicalResource extends AbstractSinglePosLexicalResource
 		String outFile = "d:/temp/lin_rules_lemmas.txt";	// "c:/Users/user/Desktop/lin_rules_lemmas.txt";
 		new File(outFile).delete();
 		StringBuilder buf = new StringBuilder();	
-		
+
 		i = 0;
 		BufferedReader reader = new BufferedReader(new FileReader(new File("d:/temp/distsim_lin_rules_nb.txt")));
-		String line;
-		while ((line = reader.readLine()) != null)
+		try
 		{
-			i++;
-			String[] parts = line.split("\\t");
-			if (parts.length != 3)
-				throw new LexicalResourceException("Hey! this don't have 3 parts: " + line);
-			
-			int leftId = Integer.parseInt(parts[0]);
-			int rightId = Integer.parseInt(parts[1]);
-			double score = Double.parseDouble(parts[2]);
-			String lLemma = idToLemma.get(leftId);
-			String rLemma = idToLemma.get(rightId);
-			
-			buf.append(lLemma + "\t" + rLemma + "\t" + score + "\n");
-			if (i % 1000000 == 0)
+			String line;
+			while ((line = reader.readLine()) != null)
 			{
-				fileAppendContents(outFile, buf.toString());
-				buf = new StringBuilder();
-				System.out.println("rows >>" + i);
+				i++;
+				String[] parts = line.split("\\t");
+				if (parts.length != 3)
+					throw new LexicalResourceException("Hey! this don't have 3 parts: " + line);
+
+				int leftId = Integer.parseInt(parts[0]);
+				int rightId = Integer.parseInt(parts[1]);
+				double score = Double.parseDouble(parts[2]);
+				String lLemma = idToLemma.get(leftId);
+				String rLemma = idToLemma.get(rightId);
+
+				buf.append(lLemma + "\t" + rLemma + "\t" + score + "\n");
+				if (i % 1000000 == 0)
+				{
+					fileAppendContents(outFile, buf.toString());
+					buf = new StringBuilder();
+					System.out.println("rows >>" + i);
+				}
 			}
 		}
-		
+		finally
+		{
+			reader.close();
+		}
+
 		fileAppendContents(outFile, buf.toString());
 		System.out.println("Read and wrote " + i + " rows out of lin_rules_nb :>");
-		
+
 
 		Statement stmt = con.createStatement();
 		stmt.executeUpdate(

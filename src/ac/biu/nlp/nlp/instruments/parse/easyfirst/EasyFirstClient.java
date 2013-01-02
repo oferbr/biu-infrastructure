@@ -56,12 +56,14 @@ import ac.biu.nlp.nlp.representation.UnsupportedPosTagStringException;
  * <br> {@code 28 celebrations celebration NN NN _ 12 nsubj  _ _}
  * <br>
  * 
- * @author Amnon Lotan
+ * @author Amnon Lotan & Asher Stern
  *
  * @since 16/02/2011
  */
 public class EasyFirstClient
 {
+	/////////////////////// CONSTANTS ///////////////////////
+	
 	private static final String ENCODING = "UTF-8";
 	private static final String TAGGED_TEXT_FIELD = "tagged_text=";
 	private static final String UNDERSCORE = "_";
@@ -85,17 +87,9 @@ public class EasyFirstClient
 			e.printStackTrace();	}
 	}
 	
-	private Tokenizer tokenizer;
-	private PosTagger posTagger;
-	private URL parserUrl;
 	
-	private BasicConstructionNode tree;
-	private ArrayList<BasicConstructionNode> nodesAsList;
-	private ArrayList<BasicConstructionNode> wordsNodesList;
+	//////////////////// PUBLIC CONSTRUCTOR AND METHODS ////////////////////
 	
-	private Map<Integer,BasicConstructionNode> mapIdToNode;
-	private Map<Integer,Integer> mapNodeIdToParentId;
-
 	/**
 	 * <B>tokenizer and posTagger should be initialized!</B>
 	 * 
@@ -114,136 +108,35 @@ public class EasyFirstClient
 		this.parserUrl = parserUrl;
 	}
 	
+	
+	public EasyFirstClient(URL parserUrl) throws ParserRunException
+	{
+		this.parserUrl = parserUrl;
+		this.tokenizer = null;
+		this.posTagger = null;
+	}
+	
 	public void parse(String rawText) throws ParserRunException
 	{
-		tree = null;
-		nodesAsList = new ArrayList<BasicConstructionNode>();
-		wordsNodesList = new ArrayList<BasicConstructionNode>();
-		mapIdToNode = new HashMap<Integer, BasicConstructionNode>();
-		mapNodeIdToParentId = new HashMap<Integer, Integer>();
-		
 		List<String> parserOutput = getParserOutput(rawText);
-		if (parserOutput==null)throw new ParserRunException("null output");
-		if (parserOutput.size()==0)throw new ParserRunException("empty output");
-		for (String line : parserOutput)
+		parseParserOutput(parserOutput,rawText);
+	}
+	
+	public void parse(List<PosTaggedToken> posTaggedSentence) throws ParserRunException
+	{
+
+		String taggedText = fixPosTaggedTokensAndConvertToString(posTaggedSentence);
+		try
 		{
-			if (line!=null){if(line.length()>0)
-			{
-				String[] lineComponents = line.split("\\s");
-				try
-				{
-					int index=0;
-					String counterString = lineComponents[index];
-					index++;
-					String word = lineComponents[index];
-					index++;
-					String lemma = lineComponents[index];
-					index++;
-					String pos = lineComponents[index];
-					index++;
-
-					index++;
-
-					index++;
-
-					String parent = lineComponents[index];
-					index++;
-					String relation = lineComponents[index];
-					index++;
-
-					int serial=0;
-					int id = Integer.parseInt(counterString);
-					int parentId = Integer.parseInt(parent);
-					boolean isExtraNode = false;
-					BasicConstructionNode antecedent = null;
-					if (pos.startsWith(EXTRA_NODES_PART_OF_SPEECH_PREFIX))
-					{
-						isExtraNode=true;
-						String antecedentIdString = pos.substring(EXTRA_NODES_PART_OF_SPEECH_PREFIX.length());
-						int antecedentId=0;
-						try
-						{
-							antecedentId = Integer.parseInt(antecedentIdString);
-						}catch(NumberFormatException e){throw new ParserRunException("Bad antecedent id, when parsing "+pos+".\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawText+"\"",e);}
-						antecedent = mapIdToNode.get(antecedentId);
-						if (antecedent==null)throw new ParserRunException("Antecedent not found for node: "+counterString+".\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawText+"\"");
-						serial = antecedent.getInfo().getNodeInfo().getSerial();
-						pos = InfoGetFields.getPartOfSpeech(antecedent.getInfo());
-					}
-					else
-					{
-						isExtraNode=false;
-						serial = id;
-					}
-
-
-					if ( (isExtraNode) && (parentId==0) )
-					{
-						// Do nothing. This node is an anomaly.
-					}
-					else
-					{
-						BasicConstructionNode node = null;
-						EdgeInfo edgeInfo = null;
-						if (parentId==0)
-						{
-							edgeInfo = new DefaultEdgeInfo(null);
-						}
-						else
-						{
-							edgeInfo = new DefaultEdgeInfo(new DependencyRelation(relation, null));
-						}
-						node = new BasicConstructionNode(new DefaultInfo(counterString,new DefaultNodeInfo(word, lemma, serial, null, new DefaultSyntacticInfo(new PennPartOfSpeech(pos))),edgeInfo));
-
-						if (isExtraNode)
-						{
-							node.setAntecedent(antecedent);
-						}
-
-						mapIdToNode.put(id, node);
-						nodesAsList.add(node);
-						if (!isExtraNode)
-						{
-							wordsNodesList.add(node);
-						}
-
-						if (parentId==0)
-						{
-							if (tree!=null)throw new ParserRunException("More than one root.\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawText+"\"");
-							tree=node;
-						}
-						else
-						{
-							mapNodeIdToParentId.put(id, parentId);
-						}
-					}
-				}
-				catch(ArrayIndexOutOfBoundsException e)
-				{
-					throw new ParserRunException("Wrong line returned by the parser: "+line+".\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawText+"\"");
-				}
-				catch (UnsupportedPosTagStringException e)
-				{
-					throw new ParserRunException("Unsupported part-of-speech tag, occurred in line: \""+line+"\". See nested exception.\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawText+"\"",e);
-				}
-			}}
-			
-		}
-		
-		for (Map.Entry<Integer, Integer> entry : mapNodeIdToParentId.entrySet())
+			List<String> parserOutput = getParserOutputFromPosTaggedText(taggedText);
+			parseParserOutput(parserOutput,null);
+		} 
+		catch (IOException e)
 		{
-			Integer nodeCounter = entry.getKey();
-			Integer parentCounter = entry.getValue();
-			
-			BasicConstructionNode parentNode = mapIdToNode.get(parentCounter);
-			BasicConstructionNode node = mapIdToNode.get(nodeCounter);
-			parentNode.addChild(node);
+			throw new ParserRunException("Failed to run parser. Input was the following tagger text:\n"+taggedText+"\nPlease see nested exception",e);
 		}
 	}
 	
-	
-	
-
 	public BasicConstructionNode getTree()
 	{
 		return tree;
@@ -258,18 +151,12 @@ public class EasyFirstClient
 	{
 		return wordsNodesList;
 	}
-
-	/**
-	 * Get some raw text and return parsed text 
-	 * @param rawText each sentence is a line, and will produce several parses if you give it several lines
-	 * @return
-	 * @throws ParserRunException
-	 */
-	private List<String> getParserOutput(String rawText) throws ParserRunException
+	
+	
+	////////////////////////// PRIVATE //////////////////////////
+	
+	private List<PosTaggedToken> tokenizeAndPosTag(String rawText) throws ParserRunException
 	{
-		List<String> ret = new LinkedList<String>();	
-		OutputStreamWriter writer = null;
-		BufferedReader reader = null;
 		try
 		{
 			// tokenize and pos tag
@@ -277,29 +164,9 @@ public class EasyFirstClient
 			tokenizer.tokenize();
 			posTagger.setTokenizedSentence(tokenizer.getTokenizedSentence());
 			posTagger.process();
-			String taggedText = posTaggedTokensToString(inspectPosTaggedTokens(posTagger.getPosTaggedTokens()));
-		
- 		    // Create query string
-		    String queryString = TAGGED_TEXT_FIELD + URLEncoder.encode(taggedText, ENCODING);
-			
-		    // Set up the URLConnection to the parser server, which should be upped by the user
-			URLConnection urlConnection = parserUrl.openConnection();
-		    urlConnection.setDoOutput(true);
-	
-		    // Write query string to request body
-		    writer = new OutputStreamWriter(urlConnection.getOutputStream());
-		    writer.write(queryString);
-		    writer.flush();
-	
-		    // Read the response -- only AFTER writing the request!
-		    reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-		    String line = null;
-		    while ((line = reader.readLine()) != null)
-		    {
-		    	ret.add(line);
-		    }
-		    
-		} 
+			return posTagger.getPosTaggedTokens();
+
+		}
 		catch (TokenizerException e)
 		{
 			throw new ParserRunException("Tokenizing error", e);
@@ -308,22 +175,9 @@ public class EasyFirstClient
 		{
 			throw new ParserRunException("POS tagging error", e);
 		}
-		catch (IOException e)
-		{
-			throw new ParserRunException("Error openning a new URLConnection, or writing to or reading from the parser server", e);
-		}
-		finally
-		{
-		    try
-			{
-		    	if (writer!=null)writer.close();
-				if (reader!=null)reader.close();
-			} 
-		    catch (IOException e) {	}
-		}
-
-		return ret;
 	}
+	
+
 	
 	/**
 	 * Repair pronouns that were wrongly tagged as FW (or anything else other than PRONOUN)
@@ -368,6 +222,222 @@ public class EasyFirstClient
 		return buf.toString();
 	}
 	
+
+	
+	
+	private List<String> getParserOutputFromPosTaggedText(String taggedText) throws ParserRunException, IOException
+	{
+		List<String> ret = new LinkedList<String>();
+		OutputStreamWriter writer = null;
+		BufferedReader reader = null;
+		try
+		{
+			// Create query string
+			String queryString = TAGGED_TEXT_FIELD + URLEncoder.encode(taggedText, ENCODING);
+
+			// Set up the URLConnection to the parser server, which should be upped by the user
+			URLConnection urlConnection = parserUrl.openConnection();
+			urlConnection.setDoOutput(true);
+
+			// Write query string to request body
+			writer = new OutputStreamWriter(urlConnection.getOutputStream());
+			writer.write(queryString);
+			writer.flush();
+
+			// Read the response -- only AFTER writing the request!
+			reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+			String line = null;
+			while ((line = reader.readLine()) != null)
+			{
+				ret.add(line);
+			}
+		}
+		finally
+		{
+			try
+			{
+				if (writer!=null)writer.close();
+				if (reader!=null)reader.close();
+			} 
+			catch (IOException e) {	}
+
+		}
+		return ret;
+	}
+	
+
+	
+	
+	private String fixPosTaggedTokensAndConvertToString(List<PosTaggedToken> posTaggedTokens)
+	{
+		return posTaggedTokensToString(inspectPosTaggedTokens(posTaggedTokens));
+	}
+
+
+
+	/**
+	 * Get some raw text and return parsed text 
+	 * @param rawText each sentence is a line, and will produce several parses if you give it several lines
+	 * @return
+	 * @throws ParserRunException
+	 */
+	private List<String> getParserOutput(String rawText) throws ParserRunException
+	{
+		List<String> ret = null;	
+		try
+		{
+			List<PosTaggedToken> posTaggedTokensForRawText = tokenizeAndPosTag(rawText);
+			String taggedText = fixPosTaggedTokensAndConvertToString(posTaggedTokensForRawText);
+			ret = getParserOutputFromPosTaggedText(taggedText);
+		} 
+		catch (IOException e)
+		{
+			throw new ParserRunException("Error openning a new URLConnection, or writing to or reading from the parser server", e);
+		}
+		finally
+		{
+		}
+
+		return ret;
+	}
+	
+	
+	private void parseParserOutput(List<String> parserOutput, String optionalRawText) throws ParserRunException
+	{
+		String rawTextForExceptionString;
+		if (optionalRawText!=null)
+		{
+			rawTextForExceptionString = "\nInput was: \""+optionalRawText+"\"";
+		}
+		else
+		{
+			rawTextForExceptionString = "";
+		}
+		
+		tree = null;
+		nodesAsList = new ArrayList<BasicConstructionNode>();
+		wordsNodesList = new ArrayList<BasicConstructionNode>();
+		mapIdToNode = new HashMap<Integer, BasicConstructionNode>();
+		mapNodeIdToParentId = new HashMap<Integer, Integer>();
+		
+		if (parserOutput==null)throw new ParserRunException("null output");
+		if (parserOutput.size()==0)throw new ParserRunException("empty output");
+		for (String line : parserOutput)
+		{
+			if (line!=null){if(line.length()>0)
+			{
+				String[] lineComponents = line.split("\\s");
+				try
+				{
+					int index=0;
+					String counterString = lineComponents[index];
+					index++;
+					String word = lineComponents[index];
+					index++;
+					String lemma = lineComponents[index];
+					index++;
+					String pos = lineComponents[index];
+					index++;
+
+					index++;
+
+					index++;
+
+					String parent = lineComponents[index];
+					index++;
+					String relation = lineComponents[index];
+					index++;
+
+					int serial=0;
+					int id = Integer.parseInt(counterString);
+					int parentId = Integer.parseInt(parent);
+					boolean isExtraNode = false;
+					BasicConstructionNode antecedent = null;
+					if (pos.startsWith(EXTRA_NODES_PART_OF_SPEECH_PREFIX))
+					{
+						isExtraNode=true;
+						String antecedentIdString = pos.substring(EXTRA_NODES_PART_OF_SPEECH_PREFIX.length());
+						int antecedentId=0;
+						try
+						{
+							antecedentId = Integer.parseInt(antecedentIdString);
+						}catch(NumberFormatException e){throw new ParserRunException("Bad antecedent id, when parsing "+pos+".\nParser output was:\n"+listStringToString(parserOutput)+rawTextForExceptionString,e);}
+						antecedent = mapIdToNode.get(antecedentId);
+						if (antecedent==null)throw new ParserRunException("Antecedent not found for node: "+counterString+".\nParser output was:\n"+listStringToString(parserOutput)+rawTextForExceptionString);
+						serial = antecedent.getInfo().getNodeInfo().getSerial();
+						pos = InfoGetFields.getPartOfSpeech(antecedent.getInfo());
+					}
+					else
+					{
+						isExtraNode=false;
+						serial = id;
+					}
+
+
+					if ( (isExtraNode) && (parentId==0) )
+					{
+						// Do nothing. This node is an anomaly.
+					}
+					else
+					{
+						BasicConstructionNode node = null;
+						EdgeInfo edgeInfo = null;
+						if (parentId==0)
+						{
+							edgeInfo = new DefaultEdgeInfo(null);
+						}
+						else
+						{
+							edgeInfo = new DefaultEdgeInfo(new DependencyRelation(relation, null));
+						}
+						node = new BasicConstructionNode(new DefaultInfo(counterString,new DefaultNodeInfo(word, lemma, serial, null, new DefaultSyntacticInfo(new PennPartOfSpeech(pos))),edgeInfo));
+
+						if (isExtraNode)
+						{
+							node.setAntecedent(antecedent);
+						}
+
+						mapIdToNode.put(id, node);
+						nodesAsList.add(node);
+						if (!isExtraNode)
+						{
+							wordsNodesList.add(node);
+						}
+
+						if (parentId==0)
+						{
+							if (tree!=null)throw new ParserRunException("More than one root.\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawTextForExceptionString+"\"");
+							tree=node;
+						}
+						else
+						{
+							mapNodeIdToParentId.put(id, parentId);
+						}
+					}
+				}
+				catch(ArrayIndexOutOfBoundsException e)
+				{
+					throw new ParserRunException("Wrong line returned by the parser: "+line+".\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawTextForExceptionString+"\"");
+				}
+				catch (UnsupportedPosTagStringException e)
+				{
+					throw new ParserRunException("Unsupported part-of-speech tag, occurred in line: \""+line+"\". See nested exception.\nParser output was:\n"+listStringToString(parserOutput)+"\nInput was: \""+rawTextForExceptionString+"\"",e);
+				}
+			}}
+			
+		}
+		
+		for (Map.Entry<Integer, Integer> entry : mapNodeIdToParentId.entrySet())
+		{
+			Integer nodeCounter = entry.getKey();
+			Integer parentCounter = entry.getValue();
+			
+			BasicConstructionNode parentNode = mapIdToNode.get(parentCounter);
+			BasicConstructionNode node = mapIdToNode.get(nodeCounter);
+			parentNode.addChild(node);
+		}
+	}
+	
 	
 	private static String listStringToString(List<String> list)
 	{
@@ -379,4 +449,17 @@ public class EasyFirstClient
 		}
 		return sb.toString();
 	}
+	
+	
+	
+	private Tokenizer tokenizer;
+	private PosTagger posTagger;
+	private URL parserUrl;
+	
+	private BasicConstructionNode tree;
+	private ArrayList<BasicConstructionNode> nodesAsList;
+	private ArrayList<BasicConstructionNode> wordsNodesList;
+	
+	private Map<Integer,BasicConstructionNode> mapIdToNode;
+	private Map<Integer,Integer> mapNodeIdToParentId;
 }

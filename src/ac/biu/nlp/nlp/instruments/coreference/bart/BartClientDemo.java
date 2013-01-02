@@ -111,17 +111,24 @@ public class BartClientDemo
 	public void g() throws Exception
 	{
 		BufferedReader reader = new BufferedReader(new FileReader("/media/Data/asher/data/bart/my/out.text2.xml"));
-		StringBuffer sb = new StringBuffer();
-		String line = reader.readLine();
-		while (line != null)
+		try
 		{
-			sb.append(line);
-			sb.append("\n");
-			line = reader.readLine();
+			StringBuffer sb = new StringBuffer();
+			String line = reader.readLine();
+			while (line != null)
+			{
+				sb.append(line);
+				sb.append("\n");
+				line = reader.readLine();
+			}
+			String s = sb.toString();
+			s = s.replaceAll("&.*;", "");
+			System.out.println(s);
 		}
-		String s = sb.toString();
-		s = s.replaceAll("&.*;", "");
-		System.out.println(s);
+		finally
+		{
+			reader.close();
+		}
 		
 		
 	}

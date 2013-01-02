@@ -1,5 +1,7 @@
 package ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom;
 
+import static ac.biu.nlp.nlp.general.xmldom.XmlDomUtils.getChildElement;
+import static ac.biu.nlp.nlp.general.xmldom.XmlDomUtils.getTextOfElement;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.DEPENDENCY_RELATION_STRING_ELEMENT_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.EXIST_ATTRIBUTE_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.ID_ELEMENT_NAME;
@@ -10,11 +12,10 @@ import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.Info
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.VARIABLE_ATTRIBUTE_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.VARIABLE_ID_ELEMENT_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.InfoToElement.WORD_ELEMENT_NAME;
-import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.TreeXmlUtils.getChildElement;
-import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.TreeXmlUtils.getTextOfElement;
 
 import org.w3c.dom.Element;
 
+import ac.biu.nlp.nlp.general.xmldom.XmlDomUtilitiesException;
 import ac.biu.nlp.nlp.instruments.parse.representation.basic.DefaultEdgeInfo;
 import ac.biu.nlp.nlp.instruments.parse.representation.basic.DefaultInfo;
 import ac.biu.nlp.nlp.instruments.parse.representation.basic.DefaultNodeInfo;
@@ -49,24 +50,31 @@ public class ElementToInfo
 
 	public void createInfo() throws TreeXmlException
 	{
-		if (markedAsExist(infoElement))
+		try
 		{
-			String id = createId();
-			NodeInfo nodeInfo = createNodeInfo();
-			EdgeInfo edgeInfo = createEdgeInfo();
-			
-			if (null==nodeInfo) throw new TreeXmlException("Malformed XML. Missing node info.");
-			if (null==edgeInfo) throw new TreeXmlException("Malformed XML. Missing edge info.");
-			if (null==id) throw new TreeXmlException("Malformed XML. Missing id.");
-			
-			info = new DefaultInfo(id, nodeInfo, edgeInfo);
+			if (markedAsExist(infoElement))
+			{
+				String id = createId();
+				NodeInfo nodeInfo = createNodeInfo();
+				EdgeInfo edgeInfo = createEdgeInfo();
+
+				if (null==nodeInfo) throw new TreeXmlException("Malformed XML. Missing node info.");
+				if (null==edgeInfo) throw new TreeXmlException("Malformed XML. Missing edge info.");
+				if (null==id) throw new TreeXmlException("Malformed XML. Missing id.");
+
+				info = new DefaultInfo(id, nodeInfo, edgeInfo);
+			}
+			else
+			{
+				info = null;
+			}
+
+			created=true;
 		}
-		else
+		catch(XmlDomUtilitiesException e)
 		{
-			info = null;
+			throw new TreeXmlException("Error when reading XML.",e);
 		}
-		
-		created=true;
 	}
 	
 	
@@ -79,7 +87,7 @@ public class ElementToInfo
 
 
 
-	private String createId() throws TreeXmlException
+	private String createId() throws TreeXmlException, XmlDomUtilitiesException
 	{
 		String id = null;
 		
@@ -89,7 +97,7 @@ public class ElementToInfo
 		return id;
 	}
 	
-	private NodeInfo createNodeInfo() throws TreeXmlException
+	private NodeInfo createNodeInfo() throws TreeXmlException, XmlDomUtilitiesException
 	{
 		NodeInfo nodeInfo = null;
 		
@@ -182,7 +190,7 @@ public class ElementToInfo
 		return nodeInfo;
 	}
 	
-	private EdgeInfo createEdgeInfo() throws TreeXmlException
+	private EdgeInfo createEdgeInfo() throws TreeXmlException, XmlDomUtilitiesException
 	{
 		EdgeInfo edgeInfo = null;
 		Element edgeInfoElement = getChildElement(infoElement, EdgeInfo.class.getSimpleName());

@@ -284,14 +284,21 @@ public class TreeDotFileGenerator<I extends Info>
 				}
 				currentParent = queue.poll();
 			}
-			
+
 			bufferDotFileContents.append(GRAPH_CONTENT_END+"\n");
 			this.dotFileString = bufferDotFileContents.toString();
-			
+
 			if (this.destinationFile != null)
 			{
 				PrintStream output = new PrintStream(new FileOutputStream(this.destinationFile));
-				output.print(this.dotFileString);
+				try
+				{
+					output.print(this.dotFileString);
+				}
+				finally
+				{
+					output.close();
+				}
 			}
 		}
 		catch(FileNotFoundException e)

@@ -15,6 +15,7 @@ import net.sf.extjwnl.data.list.PointerTargetNode;
 import net.sf.extjwnl.data.list.PointerTargetNodeList;
 import net.sf.extjwnl.data.list.PointerTargetTreeNode;
 import net.sf.extjwnl.data.list.PointerTargetTreeNodeList;
+import ac.biu.nlp.nlp.instruments.dictionary.wordnet.EnglishWordnetLexicographerFileRetriever;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.LexicographerFileInformation;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.SensedWord;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.Synset;
@@ -201,8 +202,11 @@ public class ExtJwnlSynset implements Synset
 			// some relations (inc. SYNONYM) have no neighbors, cos they have no matching JWNL relation
 			// other relations just don't exist in ext JWNL
 			return new HashSet<Synset>();
-		else
+		else {
+			if (realSynset==null)
+				throw new WordNetException("Internal bug: realSynset is null!");
 			return getSetOfSynsets(PointerUtils.makePointerTargetTreeList(realSynset, pointerType,chainingLength));
+		}
 	}
 
 	public long getUsageOf(String word) throws WordNetException
@@ -305,7 +309,7 @@ public class ExtJwnlSynset implements Synset
 	@Override
 	public LexicographerFileInformation getLexicographerFileInformation() throws WordNetException
 	{
-		return LexicographerFileInformation.get((int)this.realSynset.getLexFileNum());
+		return EnglishWordnetLexicographerFileRetriever.get((int)this.realSynset.getLexFileNum());
 	}
 	
 	///////////////////////////////////////////////////////////////// protected	//////////////////////////////////////////////////

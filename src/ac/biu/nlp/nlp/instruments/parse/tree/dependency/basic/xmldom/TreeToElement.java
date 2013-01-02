@@ -5,11 +5,14 @@ import org.w3c.dom.Element;
 
 import ac.biu.nlp.nlp.general.BidirectionalMap;
 import ac.biu.nlp.nlp.general.SimpleBidirectionalMap;
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformation;
 import ac.biu.nlp.nlp.instruments.parse.representation.basic.Info;
 import ac.biu.nlp.nlp.instruments.parse.tree.AbstractNodeUtils;
 import ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.BasicNode;
 
 /**
+ * Gets a parse-tree, and creates an XML element ({@link Element}) which
+ * represents this parse-tree.
  * 
  * @author Asher Stern
  * @since October 2, 2012
@@ -20,14 +23,23 @@ public class TreeToElement
 	public static final String CHILDREN_ELEMENT_NAME = "children";
 	public static final String XML_UNIQUE_ID_ATTRIBUTE_NAME = "xml-unique-id";
 	public static final String ANTECEDENT_ATTRIBUTE_NAME = "antecedent";
+	public static final String COREFERENCE_GROUP_ATTRIBUTE_NAME = "coreference-group";
 	
 	
+	public TreeToElement(BasicNode tree, Document document, TreeCoreferenceInformation<BasicNode> coreferenceInformation)
+	{
+		super();
+		this.tree = tree;
+		this.document = document;
+		this.coreferenceInformation = coreferenceInformation;
+	}
 	
 	public TreeToElement(BasicNode tree, Document document)
 	{
 		super();
 		this.tree = tree;
 		this.document = document;
+		this.coreferenceInformation = null;
 	}
 
 
@@ -45,6 +57,8 @@ public class TreeToElement
 		return treeElement;
 	}
 
+	
+	//////////////////////////// PRIVATE ////////////////////////////
 
 
 	private Element generate(BasicNode node) throws TreeXmlException
@@ -55,6 +69,15 @@ public class TreeToElement
 		{
 			nodeElement.setAttribute(ANTECEDENT_ATTRIBUTE_NAME, mapNodeToUniqueId.leftGet(node.getAntecedent()));
 		}
+		if (coreferenceInformation!=null)
+		{
+			Integer corefGroupId = coreferenceInformation.getIdOf(node);
+			if (corefGroupId!=null)
+			{
+				nodeElement.setAttribute(COREFERENCE_GROUP_ATTRIBUTE_NAME, String.valueOf(corefGroupId));
+			}
+		}
+		
 		Info info = node.getInfo();
 		InfoToElement infoToElement = new InfoToElement(document, info);
 		infoToElement.generate();
@@ -86,10 +109,14 @@ public class TreeToElement
 		}
 	}
 
-	private BasicNode tree;
-	private Document document;
+	// input
+	private final BasicNode tree;
+	private final Document document;
+	private final TreeCoreferenceInformation<BasicNode> coreferenceInformation;
 
+	// internals
 	private BidirectionalMap<BasicNode, String> mapNodeToUniqueId;
 	
+	// output
 	private Element treeElement;
 }

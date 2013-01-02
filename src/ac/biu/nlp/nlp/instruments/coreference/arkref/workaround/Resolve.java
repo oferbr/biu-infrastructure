@@ -345,14 +345,47 @@ public class Resolve {
 				if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
 					//U.pl("rejected due to adjunct constraint");
 					match = false; break DecideCandidate;
-				} 
-				if (mention.hasSameHeadWord(cand) || substringMatch(mention, cand)) { 
-					match = true; break DecideCandidate;
 				}
+				
+				// Asher 4/Dec/2012: Workaround
+//				try
+//				{
+//					if (mention.hasSameHeadWord(cand) || substringMatch(mention, cand)) { 
+//						match = true; break DecideCandidate;
+//					}
+//				}
+//				catch(NullPointerException e)
+//				{
+//					// if NullPointerException then it seems that the condition did
+//					// not hold. do Nothing.
+//				}
+				try
+				{
+					if (mention.hasSameHeadWord(cand)) { 
+						match = true; break DecideCandidate;
+					}
+				}
+				catch(NullPointerException e)
+				{
+					// if NullPointerException then it seems that the condition did
+					// not hold. do Nothing.
+				}
+				try
+				{
+					if (substringMatch(mention, cand)) { 
+						match = true; break DecideCandidate;
+					}
+				}
+				catch(NullPointerException e)
+				{
+					// if NullPointerException then it seems that the condition did
+					// not hold. do Nothing.
+				}
+				// end of workaround
+				
 				if (Opts.oracleSemantics) {
 					match = mention.aceMention.entity==cand.aceMention.entity;
 					break DecideCandidate;
-					
 				}
 				if (haveSemInfo && Sem.haveNP(cand)) {
 //					if (mention.aceMention.entity==cand.aceMention.entity) {

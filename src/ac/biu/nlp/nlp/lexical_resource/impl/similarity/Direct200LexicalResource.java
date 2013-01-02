@@ -3,6 +3,13 @@
  */
 package ac.biu.nlp.nlp.lexical_resource.impl.similarity;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import ac.biu.nlp.nlp.general.configuration.ConfigurationException;
 import ac.biu.nlp.nlp.general.configuration.ConfigurationParams;
 import ac.biu.nlp.nlp.lexical_resource.LexicalResourceException;
@@ -99,5 +106,21 @@ public class Direct200LexicalResource extends AbstractDirectLexicalResource
 	@Override
 	protected String getVerbTableName() {
 		return VERB_TABLE;
+	}
+	
+	public Iterator<String> getUnigramNounsIter() throws SQLException{
+		List<String> unigrams = new ArrayList<String>();
+		String query = "SELECT lhs, rhs FROM "+getNounTableName();
+		Statement stmt = con.createStatement();
+		ResultSet resultSet = stmt.executeQuery(query);
+		while (resultSet.next()) {
+			String lhs = resultSet.getString(1);
+			String rhs = resultSet.getString(2);
+			if(!lhs.contains(" ") && !rhs.contains(" ")){
+				unigrams.add(lhs+"\t"+rhs);
+			}
+		}
+		resultSet.close();
+		return unigrams.iterator();
 	}
 }

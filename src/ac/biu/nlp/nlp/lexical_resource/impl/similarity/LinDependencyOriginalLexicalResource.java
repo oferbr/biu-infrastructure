@@ -184,6 +184,8 @@ public class LinDependencyOriginalLexicalResource extends AbstractSimilarityLexi
 				return SET_OF_RIGHT_STMT_VERB;
 			case ADJECTIVE:
 				return SET_OF_RIGHT_STMT_ADJECTIVE;
+			default:
+				break;
 			}
 		}
 		else
@@ -198,6 +200,8 @@ public class LinDependencyOriginalLexicalResource extends AbstractSimilarityLexi
 				return SET_OF_LEFT_STMT_VERB;
 			case ADJECTIVE:
 				return SET_OF_LEFT_STMT_ADJECTIVE;
+			default:
+				break;
 			}
 		}
 		return EMPTY_SET; 

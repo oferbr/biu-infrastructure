@@ -8,9 +8,14 @@ import org.w3c.dom.NodeList;
 
 import ac.biu.nlp.nlp.general.BidirectionalMap;
 import ac.biu.nlp.nlp.general.SimpleBidirectionalMap;
+import ac.biu.nlp.nlp.general.xmldom.XmlDomUtils;
+import ac.biu.nlp.nlp.general.xmldom.XmlDomUtilitiesException;
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformation;
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformationException;
 import ac.biu.nlp.nlp.instruments.parse.representation.basic.Info;
 import ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.BasicNode;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.TreeToElement.*;
+
 
 /**
  * 
@@ -30,10 +35,21 @@ public class ElementToTree
 
 	public void createTree() throws TreeXmlException
 	{
-		mapNodeToUniqueId = new SimpleBidirectionalMap<BasicNode, String>();
-		mapNodeToAntecedentId = new LinkedHashMap<BasicNode, String>();
-		tree = createSubTree(element);
-		updateAntecedents();
+		try
+		{
+			mapNodeToUniqueId = new SimpleBidirectionalMap<BasicNode, String>();
+			mapNodeToAntecedentId = new LinkedHashMap<BasicNode, String>();
+			tree = createSubTree(element);
+			updateAntecedents();
+		}
+		catch (XmlDomUtilitiesException e)
+		{
+			throw new TreeXmlException("Error when reading XML.",e);
+		}
+		catch (TreeCoreferenceInformationException e)
+		{
+			throw new TreeXmlException("Error in coreference attribute.",e);
+		}
 	}
 	
 	
@@ -42,12 +58,19 @@ public class ElementToTree
 		if (null==tree) throw new TreeXmlException("Please call createTree()");
 		return tree;
 	}
+	
+	public boolean hasCoreferenceInformation()
+	{
+		return (highestCorefGroupId>0);
+	}
+	
+	public TreeCoreferenceInformation<BasicNode> getCoreferenceInformation()
+	{
+		return coreferenceInformation;
+	}
 
 
-
-
-
-	private BasicNode createSubTree(Element nodeElement) throws TreeXmlException
+	private BasicNode createSubTree(Element nodeElement) throws TreeXmlException, XmlDomUtilitiesException, TreeCoreferenceInformationException
 	{
 		String uniqueId = nodeElement.getAttribute(XML_UNIQUE_ID_ATTRIBUTE_NAME);
 		if (null==uniqueId) throw new TreeXmlException("Malformed XML. Missing unique id of a node.");
@@ -56,7 +79,7 @@ public class ElementToTree
 //		if (nodeListInfoElement.getLength()!=1) throw new TreeXmlException("Malformed XML. Number of Info elements is not 1.");
 //		Element infoElement = (Element) nodeListInfoElement.item(0);
 		
-		Element infoElement = TreeXmlUtils.getChildElement(nodeElement, Info.class.getSimpleName());
+		Element infoElement = XmlDomUtils.getChildElement(nodeElement, Info.class.getSimpleName());
 		ElementToInfo elementToInfo = new ElementToInfo(posFactory, infoElement);
 		elementToInfo.createInfo();
 		Info info = elementToInfo.getInfo();
@@ -69,12 +92,13 @@ public class ElementToTree
 		{
 			mapNodeToAntecedentId.put(node,antecedentId);
 		}
+		handleCoreferenceGroupOfNode(nodeElement,node);
 
 //		NodeList nodeListChildrenElement = nodeElement.getElementsByTagName(CHILDREN_ELEMENT_NAME);
 //		if (nodeListChildrenElement.getLength()>1) throw new TreeXmlException("Malformed XML. More than one children element.");
 //		if (nodeListChildrenElement.getLength()==1)
 
-		Element childrenElement = TreeXmlUtils.getChildElement(nodeElement, CHILDREN_ELEMENT_NAME,true);
+		Element childrenElement = XmlDomUtils.getChildElement(nodeElement, CHILDREN_ELEMENT_NAME,true);
 		if (childrenElement!=null)
 		{
 			NodeList nodeListForChildren = childrenElement.getChildNodes();//  getElementsByTagName(BasicNode.class.getSimpleName());
@@ -104,11 +128,41 @@ public class ElementToTree
 		}
 	}
 	
+	private void handleCoreferenceGroupOfNode(Element nodeElement, BasicNode node) throws TreeCoreferenceInformationException, TreeXmlException
+	{
+		String corefGroupIdString = nodeElement.getAttribute(COREFERENCE_GROUP_ATTRIBUTE_NAME);
+		if (corefGroupIdString!=null)
+		{
+			try
+			{
+				int corefGroupId = Integer.parseInt(corefGroupIdString);
+				addNodeToCorefGroup(node,corefGroupId);
+			}
+			catch(NumberFormatException e)
+			{
+				throw new TreeXmlException("Bad argument value for coreference. Value is: "+corefGroupIdString,e);
+			}
+		}
+	}
+	
+	private void addNodeToCorefGroup(BasicNode node, int groupId) throws TreeCoreferenceInformationException, TreeXmlException
+	{
+		if (groupId<=0) throw new TreeXmlException("A wrong coreference-group-id was given: "+groupId);
+		while (highestCorefGroupId<groupId)
+		{
+			highestCorefGroupId = coreferenceInformation.createNewGroup();
+		}
+		coreferenceInformation.addNodeToGroup(groupId, node);
+	}
+	
 	private XmlTreePartOfSpeechFactory posFactory;
 	private Element element;
 	
 	private BidirectionalMap<BasicNode, String> mapNodeToUniqueId;
 	private Map<BasicNode, String> mapNodeToAntecedentId;
 	
+	private int highestCorefGroupId = 0;
+	
 	private BasicNode tree = null;
+	private TreeCoreferenceInformation<BasicNode> coreferenceInformation = new TreeCoreferenceInformation<BasicNode>();
 }

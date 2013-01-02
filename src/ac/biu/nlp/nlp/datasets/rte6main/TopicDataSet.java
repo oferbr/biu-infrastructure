@@ -20,10 +20,10 @@ public class TopicDataSet implements Serializable
 	
 	/**
 	 * Constructor with the whole topic contents. Used by {@link Rte6DatasetLoader}.
-	 * @param topicId
-	 * @param candidatesMap
-	 * @param hypothesisMap
-	 * @param documentsMap
+	 * @param topicId the topic-id
+	 * @param candidatesMap map from hypothesis-id to a set of candidate-sentences (sentences which perhaps entail it).
+	 * @param hypothesisMap map from hypothesis-id to the hypothesis-sentence
+	 * @param documentsMap map from document-id to document-meta-data
 	 */
 	public TopicDataSet(String topicId,
 			Map<String, Set<SentenceIdentifier>> candidatesMap,

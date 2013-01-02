@@ -45,6 +45,8 @@ public class CatvarLexicalResource extends LexicalResourceNothingToClose<EmptyRu
 	public static final String POS_SEPARATOR = "_";
 	public static final String PARAM_CATVAR_FILE_NAME = "catver-file-name";
 	
+	public static final String RESOURCE_NAME = "CatVar";
+	
 	
 	/**
 	 * File should be "catvar21"
@@ -96,7 +98,7 @@ public class CatvarLexicalResource extends LexicalResourceNothingToClose<EmptyRu
 			{
 				if (rulesForLeft.contains(waposRight))
 				{
-					ret = Collections.<LexicalRule<? extends EmptyRuleInfo>>singletonList(new LexicalRule<EmptyRuleInfo>(leftLemma,leftPos,rightLemma,rightPos,"CatVar","CatVar",EmptyRuleInfo.getInstance()));
+					ret = Collections.<LexicalRule<? extends EmptyRuleInfo>>singletonList(new LexicalRule<EmptyRuleInfo>(leftLemma,leftPos,rightLemma,rightPos,RESOURCE_NAME,RESOURCE_NAME,EmptyRuleInfo.getInstance()));
 				}
 			}
 			if (null==ret)
@@ -135,7 +137,7 @@ public class CatvarLexicalResource extends LexicalResourceNothingToClose<EmptyRu
 					{
 						if (!wapos.equals(wordAndPartOfSpeech))
 						{
-							ret.add(new LexicalRule<EmptyRuleInfo>(wapos.getWord(),wapos.getPos(),lemma,pos,"CatVar","CatVar",EmptyRuleInfo.getInstance()));
+							ret.add(new LexicalRule<EmptyRuleInfo>(wapos.getWord(),wapos.getPos(),lemma,pos,RESOURCE_NAME,RESOURCE_NAME,EmptyRuleInfo.getInstance()));
 						}
 					}
 				}
@@ -145,7 +147,7 @@ public class CatvarLexicalResource extends LexicalResourceNothingToClose<EmptyRu
 					{
 						if (!wapos.equals(wordAndPartOfSpeech))
 						{
-							ret.add(new LexicalRule<EmptyRuleInfo>(lemma,pos,wapos.getWord(),wapos.getPos(),"CatVar","CatVar",EmptyRuleInfo.getInstance()));
+							ret.add(new LexicalRule<EmptyRuleInfo>(lemma,pos,wapos.getWord(),wapos.getPos(),RESOURCE_NAME,RESOURCE_NAME,EmptyRuleInfo.getInstance()));
 						}
 					}
 				}

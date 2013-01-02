@@ -20,7 +20,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformation;
+import ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.BasicNode;
+
 /**
+ * This class gets a list of parse-trees, and saves them into an XML
+ * 
+ * @see XmlToListTrees
  * 
  * @author Asher Stern
  * @since October 2, 2012
@@ -33,14 +39,43 @@ public class ListTreesToXml
 	public static final String SENTENCE_ELEMENT_NAME = "original-sentence";
 	public static final String CORPUS_INFORMATION_ELEMENT_NAME = "corpus-information";
 	
+	/**
+	 * Constructor which gets the list of the trees and the XML into which they should be written.
+	 * This constructor also gets the coreference information (resolved in the document level), to be
+	 * written into the XML file (as attributes on the tree-nodes) as well.
+	 * @param listTrees A list of parse-trees
+	 * @param corpusInformation A description of the list-of-trees.
+	 * @param filename The XML file name, which is the file that the trees will be written to.
+	 * @param coreferenceInformation Coreference information (in the document level) to be written as well.
+	 */
+	public ListTreesToXml(List<TreeAndSentence> listTrees, String corpusInformation, String filename, TreeCoreferenceInformation<BasicNode> coreferenceInformation)
+	{
+		super();
+		this.listTrees = listTrees;
+		this.filename = filename;
+		this.corpusInformation = corpusInformation;
+		this.coreferenceInformation = coreferenceInformation;
+	}
+	
+	/**
+	 * Constructor which gets the list of the trees and the XML into which they should be written.
+	 * @param listTrees A list of parse-trees
+	 * @param corpusInformation A description of the list-of-trees.
+	 * @param filename The XML file name, which is the file that the trees will be written to.
+	 */
 	public ListTreesToXml(List<TreeAndSentence> listTrees, String corpusInformation, String filename)
 	{
 		super();
 		this.listTrees = listTrees;
 		this.filename = filename;
 		this.corpusInformation = corpusInformation;
+		this.coreferenceInformation = null;
 	}
 
+	/**
+	 * Create a new XML file, and writes all the given trees into it.
+	 * @throws TreeXmlException
+	 */
 	public void create() throws TreeXmlException
 	{
 		try
@@ -67,6 +102,8 @@ public class ListTreesToXml
 		}
 	}
 
+	/////////////////////// PRIVATE ///////////////////////
+	
 	private void createDocument() throws ParserConfigurationException
 	{
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
@@ -108,7 +145,15 @@ public class ListTreesToXml
 		Text sentenceText = document.createTextNode((treeAndSentence.getSentence()!=null)?treeAndSentence.getSentence():"null");
 		sentenceElement.appendChild(sentenceText);
 		
-		TreeToElement treeToElement = new TreeToElement(treeAndSentence.getTree(), document);
+		TreeToElement treeToElement;
+		if (this.coreferenceInformation!=null)
+		{
+			treeToElement = new TreeToElement(treeAndSentence.getTree(), document, this.coreferenceInformation);
+		}
+		else
+		{
+			treeToElement = new TreeToElement(treeAndSentence.getTree(), document);	
+		}
 		treeToElement.generate();
 		Element treeElement = treeToElement.getTreeElement();
 		treeAndSentenceElement.appendChild(treeElement);
@@ -141,9 +186,28 @@ public class ListTreesToXml
 
 
 
+	// input
+	/**
+	 * List of trees to be stored in the XML file 
+	 */
 	private List<TreeAndSentence> listTrees;
+	
+	/**
+	 * Optional coreference information on this document
+	 */
+	private TreeCoreferenceInformation<BasicNode> coreferenceInformation;
+	
+	/**
+	 * A description of the list of trees (typically, a name of a document)
+	 */
 	private String corpusInformation;
+	
+	/**
+	 * The XML file name, into which the trees will be stored.
+	 */
 	private String filename;
 	
+	
+	// internal field
 	private Document document;
 }

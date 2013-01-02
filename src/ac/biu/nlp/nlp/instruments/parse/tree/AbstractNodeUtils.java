@@ -285,6 +285,20 @@ public class AbstractNodeUtils
 		return ret;
 	}
 	
+	/**
+	 * @return true if node1 is a strict descendant of node2, in the given parent-map 
+	 */
+	public static <T,S extends AbstractNode<T, S>> boolean isDescendant(S node1, S node2, Map<S,S> parentMap)
+	{
+		for (;;) {
+			node1 = parentMap.get(node1);
+			if (node1==node2)
+				return true;    // found node2 in the ancestry line of node1
+			if (node1==null) 
+				return false;    // did not find node2 in the ancestry line of node1
+		}
+	}
+	
 
 	/////////////////////// PROTECTED & PRIVATE PART ///////////////////////////////
 

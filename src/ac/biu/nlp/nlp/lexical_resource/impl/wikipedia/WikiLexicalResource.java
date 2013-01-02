@@ -50,7 +50,7 @@ public class WikiLexicalResource extends LexicalResourceNothingToClose<WikiRuleI
 
 	private final Double COOCURENCE_THRESHOLD;
 	private final Set<String> STOP_WORDS;
-	private final WikiLexicalResourceDBServices wikiDbServices;
+	private final WikiLexicalResourceDBServicesThreadSafe wikiDbServices;
 
 	///////////////////////////////////////////// PUBLIC	////////////////////////////////////////////////////////////////////////////////
 	
@@ -95,7 +95,7 @@ public class WikiLexicalResource extends LexicalResourceNothingToClose<WikiRuleI
 			throw new LexicalResourceException("coocorrenceThreshold must be positive, or null. I got " + coocurrenceThreshold);
 		this.COOCURENCE_THRESHOLD  = coocurrenceThreshold;
 		
-		wikiDbServices = new WikiLexicalResourceDBServices(dbConnectionString, dbUser, dbPassword, COOCURENCE_THRESHOLD, permittedExtractionTypes);
+		wikiDbServices = new WikiLexicalResourceDBServicesThreadSafe(dbConnectionString, dbUser, dbPassword, COOCURENCE_THRESHOLD, permittedExtractionTypes);
 	}
 	
 	/* (non-Javadoc)

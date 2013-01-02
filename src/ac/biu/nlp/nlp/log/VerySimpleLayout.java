@@ -11,10 +11,10 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class VerySimpleLayout extends SimpleLayout
 {
-	
 	public String format(LoggingEvent event)
 	{
 		stringBuffer.setLength(0);
+		stringBuffer.append(event.getLevel().toString()).append(" - ");
 		stringBuffer.append(event.getRenderedMessage());
 		stringBuffer.append(LINE_SEP);
 		return stringBuffer.toString();

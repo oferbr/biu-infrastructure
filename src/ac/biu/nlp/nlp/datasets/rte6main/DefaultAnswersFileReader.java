@@ -193,7 +193,7 @@ public class DefaultAnswersFileReader implements AnswersFileReader
 					Element textSentenceElement = (Element) node;
 					String documentId = textSentenceElement.getAttribute(AnswerFileConstants.TEXT_SENTENCE_DOCUMENT_ID_ATTRIBUTE_NAME);
 					if (null==documentId) throw new Rte6mainIOException("missing document id.");
-					String sentenceId = textSentenceElement.getAttribute(AnswerFileConstants.TEXT_SENTENCE_DOCUMENT_ID_ATTRIBUTE_NAME);
+					String sentenceId = textSentenceElement.getAttribute(AnswerFileConstants.TEXT_SENTENCE_SENTENCE_ID_ATTRIBUTE_NAME);
 					if (null==sentenceId) throw new Rte6mainIOException("Missing sentence id.");
 					String evaluation = textSentenceElement.getAttribute(AnswerFileConstants.TEXT_SENTENCE_EVALUATION_ATTRIBUTE_NAME);
 					if (null==evaluation) throw new Rte6mainIOException("Missing evaluation attribute.");

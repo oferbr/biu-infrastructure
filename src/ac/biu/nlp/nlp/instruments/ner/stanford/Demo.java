@@ -32,33 +32,40 @@ public class Demo
 			StanfordNamedEntityRecognizer ner = new StanfordNamedEntityRecognizer( new File(pathToNER));
 			ner.init();
 			BufferedReader br = new BufferedReader(new FileReader(args[0]));
-			String s = br.readLine();
-			for (;s!=null;s=br.readLine())
+			try
 			{
-				LinkedList<String> sl = new LinkedList<String>();
-				for (String word : s.split(" "))
+				String s = br.readLine();
+				for (;s!=null;s=br.readLine())
 				{
-					sl.add(word);
-				}
-				ner.setSentence(sl);
-				ner.recognize();
-				List<NamedEntityWord> result = ner.getAnnotatedSentence();
+					LinkedList<String> sl = new LinkedList<String>();
+					for (String word : s.split(" "))
+					{
+						sl.add(word);
+					}
+					ner.setSentence(sl);
+					ner.recognize();
+					List<NamedEntityWord> result = ner.getAnnotatedSentence();
 
-				for (NamedEntityWord neWord : result)
-				{
-					System.out.println(neWord.getWord()+" ["+neWord.getNamedEntity()+"]");
+					for (NamedEntityWord neWord : result)
+					{
+						System.out.println(neWord.getWord()+" ["+neWord.getNamedEntity()+"]");
+					}
 				}
+				ner.cleanUp();
 			}
-			ner.cleanUp();
-			
-			
+			finally
+			{
+				br.close();
+			}
+
+
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		
-		
+
+
 
 	}
 

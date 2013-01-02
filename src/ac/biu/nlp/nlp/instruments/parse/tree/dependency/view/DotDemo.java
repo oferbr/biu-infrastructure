@@ -33,25 +33,38 @@ public class DotDemo
 			NodeString<Info> ns = new WordAndPosNodeString();
 			BasicParser parser = new MiniparClientParser(args[1]);
 			parser.init();
-			BufferedReader br = new BufferedReader(new FileReader(new File(args[0])));
-			String line = br.readLine();
-			while (line!=null)
+			try
 			{
-				parser.setSentence(line);
-				parser.parse();
-				BasicNode root = parser.getParseTree();
-				TreeDotFileGenerator<Info> tdfg = new TreeDotFileGenerator<Info>(ns,root,line,new File("/media/Data/asher/data/samples/4",id.toString()+".dot"));
-				id = new Integer(id.intValue()+1);
-				tdfg.generate();
-				line = br.readLine();
+				BufferedReader br = new BufferedReader(new FileReader(new File(args[0])));
+				try
+				{
+					String line = br.readLine();
+					while (line!=null)
+					{
+						parser.setSentence(line);
+						parser.parse();
+						BasicNode root = parser.getParseTree();
+						TreeDotFileGenerator<Info> tdfg = new TreeDotFileGenerator<Info>(ns,root,line,new File("/media/Data/asher/data/samples/4",id.toString()+".dot"));
+						id = new Integer(id.intValue()+1);
+						tdfg.generate();
+						line = br.readLine();
+					}
+				}
+				finally
+				{
+					br.close();
+				}
 			}
-			parser.cleanUp();
+			finally
+			{
+				parser.cleanUp();
+			}
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }

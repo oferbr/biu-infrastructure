@@ -12,7 +12,7 @@ import ac.biu.nlp.nlp.datasets.rte7main.TestsetRte7NoveltyFileSystemNames;
 
 /**
  * @author amnon
- * @since 5 áñôè 2011
+ * @since 5 Ã¡Ã±Ã´Ã¨ 2011
  * 
  */
 public class FileSystemNamesFactory {

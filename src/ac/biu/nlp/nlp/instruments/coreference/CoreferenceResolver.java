@@ -60,13 +60,14 @@ public abstract class CoreferenceResolver<S>
 		resolved = true;
 	}
 	
-	protected abstract void implementResolve() throws CoreferenceResolutionException;
-	
 	public TreeCoreferenceInformation<S> getCoreferenceInformation() throws CoreferenceResolutionException
 	{
 		if (!resolved) throw new CoreferenceResolutionException("Not yet resolved.");
 		return this.coreferenceInformation;
 	}
+	
+	protected abstract void implementResolve() throws CoreferenceResolutionException;
+	
 	
 	protected List<S> trees = null;
 	protected String originalText = null;

@@ -229,13 +229,20 @@ public class FileUtils {
 	 * @throws IOException
 	 */
 	public static String loadFileToString(String fileName) throws IOException {
-		
+
 		FileInputStream fis = new FileInputStream(fileName);
-		int x= fis.available();
-		byte b[]= new byte[x];
-		fis.read(b);
-		String content = new String(b);
-		return content;
+		try
+		{
+			int x= fis.available();
+			byte b[]= new byte[x];
+			fis.read(b);
+			String content = new String(b);
+			return content;
+		}
+		finally
+		{
+			fis.close();
+		}
 	}
 
 	/**

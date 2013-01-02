@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ac.biu.nlp.nlp.instruments.dictionary.wordnet.EnglishWordnetLexicographerFileRetriever;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.LexicographerFileInformation;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.SensedWord;
 import ac.biu.nlp.nlp.instruments.dictionary.wordnet.Synset;
@@ -262,7 +263,7 @@ public class JwiSynset implements Synset
 	public LexicographerFileInformation getLexicographerFileInformation() throws WordNetException
 	{
 		ILexFile lexFile = realSynset.getLexicalFile();
-		return LexicographerFileInformation.get(lexFile.getNumber());
+		return EnglishWordnetLexicographerFileRetriever.get(lexFile.getNumber());
 	}
 
 	///////////////////////////////////////////////////////////////////////// protected //////////////////////////////////////////////////////////////////

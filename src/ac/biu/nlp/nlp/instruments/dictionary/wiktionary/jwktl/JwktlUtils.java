@@ -178,27 +178,27 @@ public class JwktlUtils {
 		case ETYMOLOGICALLY_RELATED_TERM:
 			return (RelationType.ETYMOLOGICALLY_RELATED_TERM);	           
 		/**
-		 * Each listed holomym has this entry’s referent as a part of itself; this entry’s referent is part of that of each listed holonym.	
+		 * Each listed holomym has this entryÂ’s referent as a part of itself; this entryÂ’s referent is part of that of each listed holonym.	
 		 */
 		case HOLONYM :
 			return (RelationType.HOLONYM);	           
 		/**
-		 * Each listed hypernym is superordinate to this entry; This entry’s referent is a kind of that denoted by listed hypernym.	
+		 * Each listed hypernym is superordinate to this entry; This entryÂ’s referent is a kind of that denoted by listed hypernym.	
 		 */
 		case HYPERNYM :
 			return (RelationType.HYPERNYM);	           
 		/**
-		 * Each listed hyponym is subordinate to this entry; Each listed hyponym’s referent is a kind of that denoted by this entry.	 
+		 * Each listed hyponym is subordinate to this entry; Each listed hyponymÂ’s referent is a kind of that denoted by this entry.	 
 		 */
 		case HYPONYM :
 			return (RelationType.HYPONYM);	           
 		/**
-		 * Each listed meronym denotes part of this entry’s referent.	
+		 * Each listed meronym denotes part of this entryÂ’s referent.	
 		 */
 		case MERONYM :
 			return (RelationType.MERONYM);	           
 		/**
-		 * Each listed “otherwise related” term semantically relates to this entry.	
+		 * Each listed Â“otherwise relatedÂ” term semantically relates to this entry.	
 		 */
 		case SEE_ALSO :
 			return (RelationType.SEE_ALSO);	           
@@ -208,7 +208,7 @@ public class JwktlUtils {
 		case SYNONYM :
 			return (RelationType.SYNONYM);	           
 		/**
-		 * Each listed troponym denotes a particular way to do this entry’s referent. Like a verb's hyponym. 
+		 * Each listed troponym denotes a particular way to do this entryÂ’s referent. Like a verb's hyponym. 
 		 * A word that denotes a manner of doing something "`march' is a troponym of `walk'"	
 		 */
 		case TROPONYM :

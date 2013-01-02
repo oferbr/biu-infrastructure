@@ -178,11 +178,18 @@ public class MiniparServer
 	public void start() throws IOException
 	{
 		ServerSocket serverSocket = new ServerSocket(portNumber);
-		while (true)
+		try
 		{
-			Socket clientSocket = serverSocket.accept();
-			Thread connectionThread = new Thread(new ConnectionRunnable(clientSocket));
-			connectionThread.start();
+			while (true)
+			{
+				Socket clientSocket = serverSocket.accept();
+				Thread connectionThread = new Thread(new ConnectionRunnable(clientSocket));
+				connectionThread.start();
+			}
+		}
+		finally
+		{
+			serverSocket.close();
 		}
 	}
 	

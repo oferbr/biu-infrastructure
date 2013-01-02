@@ -79,18 +79,18 @@ public class CommandLineArguments
 		{
 			if (arg.startsWith(FLAG_START))
 			{
-				currentFlag = new String(arg);
-				flagsValues.put(arg,new String()); // default value for that flag is the empty string.
+				currentFlag = arg;
+				flagsValues.put(arg,EMPTY_STRING); // default value for that flag is the empty string.
 			}
 			else
 			{
 				if (currentFlag != null)
 				{
-					flagsValues.put(currentFlag, new String(arg));
+					flagsValues.put(currentFlag, arg);
 				}
 				else
 				{
-					freeArguments.add(new String(arg));
+					freeArguments.add(arg);
 				}
 				
 				currentFlag = null;
@@ -104,4 +104,6 @@ public class CommandLineArguments
 
 	protected Map<String,String> flagsValues;
 	protected List<String> freeArguments;
+	
+	private static final String EMPTY_STRING = "";
 }

@@ -1,5 +1,7 @@
 package ac.biu.nlp.nlp.codeannotations;
 
+import java.lang.annotation.Documented;
+
 /**
  * Indicates dependency on a particular standard.
  * For example, Penn part-of-speech, Stanford-dependencies.
@@ -18,6 +20,7 @@ package ac.biu.nlp.nlp.codeannotations;
  * @since October 9 2012
  *
  */
+@Documented
 public @interface StandardSpecific
 {
 	String[] value();

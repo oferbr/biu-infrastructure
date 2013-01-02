@@ -15,6 +15,8 @@ import ac.biu.nlp.nlp.representation.CanonicalPosTag;
 import ac.biu.nlp.nlp.representation.PartOfSpeech;
 
 /**
+ * Gets an {@link Info}, and creates an XML element ({@link Element}) which
+ * represents this {@linkplain Info}.
  * 
  * @author Asher Stern
  * @since October 2, 2012

@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -251,6 +252,90 @@ public final class StringUtil
 			}
 		}
 		return found;
+	}
+	
+	public static Set<String> intersectionIgnoreCase(Iterable<String> set1, Iterable<String> set2)
+	{
+		Set<String> ret = new LinkedHashSet<String>();
+		for (String str1 : set1)
+		{
+			for (String str2 : set2)
+			{
+				if (str1.equalsIgnoreCase(str2))
+				{
+					ret.add(str1);
+				}
+			}
+		}
+		return ret;
+		
+	}
+	
+	/**
+	 * Removes leading and trailing non-letter characters.
+	 * @param str
+	 * @return
+	 */
+	public static String trimNonLetters(String str)
+	{
+		return trimNotInCriterion(str,letterCharacterCriterion);
+	}
+
+	/**
+	 * Removes leading and trailing non-letters and non-digits characters.<P>
+	 * For example: for input "!2abc* " it returns "2abc"
+	 * @param str
+	 * @return
+	 */
+	public static String trimNeitherLettersNorDigits(String str)
+	{
+		return trimNotInCriterion(str,letterOrDigitCharacterCriterion);
+	}
+
+	/**
+	 * An interface for {@link StringUtil#trimNotInCriterion(String, CharacterCriterion)}
+	 * @author Asher Stern
+	 */
+	public static interface CharacterCriterion
+	{
+		public boolean is(char c);
+	}
+
+	/**
+	 * Trims leading and trailing characters according to the given CharacterCriterion
+	 * @param str
+	 * @param criterion
+	 * @return
+	 */
+	public static String trimNotInCriterion(String str, final CharacterCriterion criterion)
+	{
+		if (null==str) return str;
+		char[] charArray = str.toCharArray();
+		int startIndex = 0;
+		while ( (startIndex<charArray.length) && (!criterion.is(charArray[startIndex])) )
+		{
+			startIndex++;
+		}
+		int endIndex = charArray.length-1;
+		while ( (endIndex>=0) && (!criterion.is(charArray[endIndex])) )
+		{
+			--endIndex;
+		}
+		if (startIndex<=endIndex)
+		{
+			if ( (startIndex==0) && (endIndex==(charArray.length-1)) )
+			{
+				return str;
+			}
+			else
+			{
+				return str.substring(startIndex, endIndex+1);
+			}
+		}
+		else
+		{
+			return "";
+		}
 	}
 
 	/**
@@ -592,80 +677,12 @@ public final class StringUtil
 	{
 		StringBuffer buf = new StringBuffer();
 		for (String line : list)
-			buf.append(line + separator);
+			buf.append(line).append(separator);
 
 		return buf.toString();
 	}
 	
-	// demo and test some utils:
-	public static void main(String[] args) throws TokenizerException, StringUtilException
-	{
-	
-		// 	testReverse() {
 
-		if (!StringUtil.reverse("abc").equals("cba"))
-			System.out.println("wrong reverse");
-
-		if (StringUtil.reverse(null) != null)
-			System.out.println("reverse fails on null");
-		if (!StringUtil.reverse("").equals(""))
-			System.out.println("reverse fails on empty string");
-		if (!StringUtil.reverse("Abc").equals("cbA"))
-			System.out.println("wrong case sensitive reverse");
-
-
-		// testMakeSameCase() {
-
-		if (!StringUtil.makeSameCase("ABC", "dEf").equals("DEF"))
-			System.out.println("failure on all upper");
-		if (!StringUtil.makeSameCase("", "dEf").equals("dEf"))
-			System.out.println("failure on first empty");
-		if (!StringUtil.makeSameCase("ABC", "").equals(""))
-			System.out.println("failure on second empty");
-		if (!StringUtil.makeSameCase("", "").equals(""))
-			System.out.println("failure on both empty");
-		if (!StringUtil.makeSameCase(null, "dEf").equals("dEf"))
-			System.out.println("failure on first null");
-		if (!StringUtil.makeSameCase(null, "dEf").equals("dEf"))
-			System.out.println("failure on first null");
-		if (StringUtil.makeSameCase("ABC", null) != null)
-			System.out.println("failure on second null");
-		if (StringUtil.makeSameCase(null, null) != null)
-			System.out.println("failure on both null");
-		if (!StringUtil.makeSameCase("abc", "deF").equals("def"))
-			System.out.println("failure on all lower");
-		if (!StringUtil.makeSameCase("Abc", "dEf").equals("Def"))
-			System.out.println("failure on title case");
-		if (!StringUtil.makeSameCase("abC", "dEf").equals("dEf"))
-			System.out.println("failure on mixed case - should make no change");
-
-		// testArrayContainsString() 	
-	
-		if (!StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "ABc", false))
-			System.out.println("failure on ignore case");
-		
-		if (StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "Abc", true))
-			System.out.println("failure on case sensitive");
-		
-		if (!StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "Def", false))
-			System.out.println("failure on case insensitive ");
-	
-		
-		// test getTokensOffsets
-		
-		String input = "the dog's owner didn't     see the other dog .";
-		Tokenizer tokenizer = new MaxentTokenizer();
-		tokenizer.init();
-		tokenizer.setSentence(input);
-		tokenizer.tokenize();
-		
-		List<String> tokens = tokenizer.getTokenizedSentence();
-		SortedMap<Integer, DockedToken> dockedtokens = StringUtil.getTokensOffsets(input, tokens);
-		
-		System.out.println("Input: \"" + input + "\"");
-		System.out.println("Docked tokens: " + dockedtokens);
-
-	}
 	
 	/**
 	 * Generates a string of "character"s of length "length".
@@ -886,11 +903,119 @@ public final class StringUtil
 	public static SortedMap<Integer, DockedToken> getTokensOffsets(String text, List<String> tokens) throws StringUtilException {
 		return getTokensOffsets(text, tokens, true);
 	}
+	
+	
+	
+	
+	
+	
+	// demo and test some utils:
+	public static void main(String[] args) throws TokenizerException, StringUtilException
+	{
+	
+		// 	testReverse() {
+
+		if (!StringUtil.reverse("abc").equals("cba"))
+			System.out.println("wrong reverse");
+
+		if (StringUtil.reverse(null) != null)
+			System.out.println("reverse fails on null");
+		if (!StringUtil.reverse("").equals(""))
+			System.out.println("reverse fails on empty string");
+		if (!StringUtil.reverse("Abc").equals("cbA"))
+			System.out.println("wrong case sensitive reverse");
+
+
+		// testMakeSameCase() {
+
+		if (!StringUtil.makeSameCase("ABC", "dEf").equals("DEF"))
+			System.out.println("failure on all upper");
+		if (!StringUtil.makeSameCase("", "dEf").equals("dEf"))
+			System.out.println("failure on first empty");
+		if (!StringUtil.makeSameCase("ABC", "").equals(""))
+			System.out.println("failure on second empty");
+		if (!StringUtil.makeSameCase("", "").equals(""))
+			System.out.println("failure on both empty");
+		if (!StringUtil.makeSameCase(null, "dEf").equals("dEf"))
+			System.out.println("failure on first null");
+		if (!StringUtil.makeSameCase(null, "dEf").equals("dEf"))
+			System.out.println("failure on first null");
+		if (StringUtil.makeSameCase("ABC", null) != null)
+			System.out.println("failure on second null");
+		if (StringUtil.makeSameCase(null, null) != null)
+			System.out.println("failure on both null");
+		if (!StringUtil.makeSameCase("abc", "deF").equals("def"))
+			System.out.println("failure on all lower");
+		if (!StringUtil.makeSameCase("Abc", "dEf").equals("Def"))
+			System.out.println("failure on title case");
+		if (!StringUtil.makeSameCase("abC", "dEf").equals("dEf"))
+			System.out.println("failure on mixed case - should make no change");
+
+		// testArrayContainsString() 	
+	
+		if (!StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "ABc", false))
+			System.out.println("failure on ignore case");
+		
+		if (StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "Abc", true))
+			System.out.println("failure on case sensitive");
+		
+		if (!StringUtil.arrayContainsString(new String[]{"abc","def","ghi"}, "Def", false))
+			System.out.println("failure on case insensitive ");
+	
+		
+		// test getTokensOffsets
+		
+		String input = "the dog's owner didn't     see the other dog .";
+		Tokenizer tokenizer = new MaxentTokenizer();
+		tokenizer.init();
+		tokenizer.setSentence(input);
+		tokenizer.tokenize();
+		
+		List<String> tokens = tokenizer.getTokenizedSentence();
+		SortedMap<Integer, DockedToken> dockedtokens = StringUtil.getTokensOffsets(input, tokens);
+		
+		System.out.println("Input: \"" + input + "\"");
+		System.out.println("Docked tokens: " + dockedtokens);
+
+	}
+	
+	public static boolean stringOnlyDigits(String str)
+	{
+		if (null==str) return false;
+		if (str.length()==0) return false;
+		
+		boolean ret = true;
+		for (char c : str.toCharArray())
+		{
+			if (!Character.isDigit(c))
+			{
+				ret = false;
+				break;
+			}
+		}
+		return ret;
+	}
 
 	
 	/////////////////// PRIVATE PART /////////////////////////
 	
 	
+	
+	// final classes and final methods - to improve efficiency 
+	
+	private static final class LetterCharacterCriterion implements CharacterCriterion
+	{
+		public final boolean is(char c){return Character.isLetter(c);}
+	}
+
+	private static final class LetterOrDigitCharacterCriterion implements CharacterCriterion
+	{
+		public final boolean is(char c){return Character.isLetterOrDigit(c);}
+	}
+	
+	private static final LetterCharacterCriterion letterCharacterCriterion = new LetterCharacterCriterion();
+	private static final LetterOrDigitCharacterCriterion letterOrDigitCharacterCriterion = new LetterOrDigitCharacterCriterion();
+
 	private static boolean charMayEndSentence(char c)
 	{
 		boolean ret = true;

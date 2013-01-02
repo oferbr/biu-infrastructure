@@ -150,35 +150,40 @@ public class LuceneSearchManagerExample
 			// in case the index dir doesn't have a working index in it, overwriteNotApped  must be lit. otherwise, the indexWriter fails
 			if (!indexDir.exists() || indexDir.listFiles().length == 0)		
 				overwriteNotApped = true;
-			
+
 			IndexWriterConfig conf = new IndexWriterConfig(LUCENE_CURRENT_VERSION, analyzer);
 			conf.setOpenMode(overwriteNotApped ? OpenMode.CREATE : OpenMode.CREATE_OR_APPEND);
 			IndexWriter indexWriter = new IndexWriter(fsDir, conf);
-			while ( docReader.next())	// have the reader load the next encapsulated document 
+			try
 			{
-				// create a lucenen Document, fill it with Fields containing our application-specific data (document number, text), and then add it to the index writer
-				Document doc = new Document();
-				try {
-					// a field for the document ID. It's short so we specify Store.YES, and do not analyze nor normalize it
-					doc.add(new Field(DocField.ID.name(), docReader.getCurrentDocNo(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-
-					/* Create a tokenized and indexed field, for the document's text, that is not stored. Term vectors will not be stored. The Reader is read only 
-					 * when the Document is added to the index, i.e. you may not close the Reader (by calling  TrecDocReader.next()) until 
-					 * IndexWriter.addDocument(Document) has been called.
-					 * Notice the  field is not stored, so it won't be possible to retrieve the plain text from the index later
-					 */
-					doc.add(new Field(DocField.TEXT.name(), docReader.getCurrentReader()));
-				} catch (Exception e) 
+				while ( docReader.next())	// have the reader load the next encapsulated document 
 				{
-					throw new IrException("Problem with docReader. Might have returned a null field value", e);
-				}
+					// create a lucenen Document, fill it with Fields containing our application-specific data (document number, text), and then add it to the index writer
+					Document doc = new Document();
+					try {
+						// a field for the document ID. It's short so we specify Store.YES, and do not analyze nor normalize it
+						doc.add(new Field(DocField.ID.name(), docReader.getCurrentDocNo(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 
-				indexWriter.addDocument(doc);
+						/* Create a tokenized and indexed field, for the document's text, that is not stored. Term vectors will not be stored. The Reader is read only 
+						 * when the Document is added to the index, i.e. you may not close the Reader (by calling  TrecDocReader.next()) until 
+						 * IndexWriter.addDocument(Document) has been called.
+						 * Notice the  field is not stored, so it won't be possible to retrieve the plain text from the index later
+						 */
+						doc.add(new Field(DocField.TEXT.name(), docReader.getCurrentReader()));
+					} catch (Exception e) 
+					{
+						throw new IrException("Problem with docReader. Might have returned a null field value", e);
+					}
+
+					indexWriter.addDocument(doc);
+				}
+				indexWriter.optimize();
+				return indexWriter.numDocs();
 			}
-			indexWriter.optimize();
-			indexWriter.close();
-			
-			return indexWriter.numDocs();
+			finally
+			{
+				indexWriter.close();
+			}
 		} catch (CorruptIndexException e)
 		{
 			throw new IrException("corrupt index " + indexDir,e);

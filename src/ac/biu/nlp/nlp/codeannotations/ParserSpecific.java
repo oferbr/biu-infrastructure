@@ -1,5 +1,7 @@
 package ac.biu.nlp.nlp.codeannotations;
 
+import java.lang.annotation.Documented;
+
 /**
  * Indicates that a class is depends on a specific parser(s).
  * Any class that contains hard-coded string(s) which are parser
@@ -19,6 +21,7 @@ package ac.biu.nlp.nlp.codeannotations;
  * @since Feb 13, 2012
  *
  */
+@Documented
 public @interface ParserSpecific
 {
 	String[] value();

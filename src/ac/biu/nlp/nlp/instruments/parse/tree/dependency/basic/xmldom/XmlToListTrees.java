@@ -1,10 +1,10 @@
 package ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom;
 
+import static ac.biu.nlp.nlp.general.xmldom.XmlDomUtils.getChildElement;
+import static ac.biu.nlp.nlp.general.xmldom.XmlDomUtils.getTextOfElement;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.ListTreesToXml.CORPUS_INFORMATION_ELEMENT_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.ListTreesToXml.SENTENCE_ELEMENT_NAME;
 import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.ListTreesToXml.TREE_AND_SENTENCE_ELEMENT_NAME;
-import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.TreeXmlUtils.getChildElement;
-import static ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.xmldom.TreeXmlUtils.getTextOfElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import ac.biu.nlp.nlp.general.xmldom.XmlDomUtils;
+import ac.biu.nlp.nlp.general.xmldom.XmlDomUtilitiesException;
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformation;
+import ac.biu.nlp.nlp.instruments.coreference.TreeCoreferenceInformationException;
 import ac.biu.nlp.nlp.instruments.parse.tree.dependency.basic.BasicNode;
 
 
@@ -41,8 +45,19 @@ public class XmlToListTrees
 
 	public void createListTrees() throws TreeXmlException
 	{
-		getDocument();
-		readDocument();
+		try
+		{
+			getDocument();
+			readDocument();
+		}
+		catch (XmlDomUtilitiesException e)
+		{
+			throw new TreeXmlException("Error when reading XML",e);
+		}
+		catch (TreeCoreferenceInformationException e)
+		{
+			throw new TreeXmlException("An error occurred when handling coreference information.",e);
+		}
 	}
 	
 	
@@ -58,10 +73,20 @@ public class XmlToListTrees
 		if (null==listTrees) throw new TreeXmlException("Please call createListTrees()");
 		return corpusInformation;
 	}
+	
+	public boolean hasCoreferenceInformation()
+	{
+		return (this.highestCorefGroupId>0);
+	}
+	
+	public TreeCoreferenceInformation<BasicNode> getCoreferenceInformation()
+	{
+		return coreferenceInformation;
+	}
 
 
 
-	private void readDocument() throws TreeXmlException
+	private void readDocument() throws TreeXmlException, XmlDomUtilitiesException, TreeCoreferenceInformationException
 	{
 		Element documentElement = document.getDocumentElement();
 		
@@ -75,7 +100,7 @@ public class XmlToListTrees
 			corpusInformation=null;
 		}
 
-		List<Element> allSentences = TreeXmlUtils.getChildElements(documentElement, TREE_AND_SENTENCE_ELEMENT_NAME);
+		List<Element> allSentences = XmlDomUtils.getChildElements(documentElement, TREE_AND_SENTENCE_ELEMENT_NAME);
 		listTrees = new ArrayList<TreeAndSentence>(allSentences.size());
 		for (Element treeAndSentenceElement : allSentences)
 		{
@@ -83,16 +108,39 @@ public class XmlToListTrees
 		}
 	}
 	
-	private void addElementToList(Element treeAndSentenceElement) throws TreeXmlException
+	private void addElementToList(Element treeAndSentenceElement) throws TreeXmlException, XmlDomUtilitiesException, TreeCoreferenceInformationException
 	{
 		String sentence = getTextOfElement(getChildElement(treeAndSentenceElement, SENTENCE_ELEMENT_NAME));
 		Element treeElement = getChildElement(treeAndSentenceElement, BasicNode.class.getSimpleName());
 		ElementToTree elementToTree = new ElementToTree(posFactory,treeElement);
 		elementToTree.createTree();
 		BasicNode tree = elementToTree.getTree();
+		if (elementToTree.hasCoreferenceInformation())
+		{
+			mergeCoreference(elementToTree.getCoreferenceInformation());
+		}
 		
 		TreeAndSentence treeAndSentence = new TreeAndSentence(sentence, tree);
 		listTrees.add(treeAndSentence);
+	}
+	
+	private void mergeCoreference(TreeCoreferenceInformation<BasicNode> sentenceInformation) throws TreeCoreferenceInformationException
+	{
+		if (null==this.coreferenceInformation)
+		{
+			this.coreferenceInformation = new TreeCoreferenceInformation<BasicNode>();
+		}
+		for (Integer groupId : sentenceInformation.getAllExistingGroupIds())
+		{
+			while (highestCorefGroupId < groupId)
+			{
+				highestCorefGroupId = this.coreferenceInformation.createNewGroup();
+			}
+			for (BasicNode node : sentenceInformation.getGroup(groupId))
+			{
+				this.coreferenceInformation.addNodeToGroup(groupId, node);
+			}
+		}
 	}
 	
 	private void getDocument() throws TreeXmlException
@@ -118,8 +166,10 @@ public class XmlToListTrees
 	private XmlTreePartOfSpeechFactory posFactory;
 	
 	private Document document;
+	private int highestCorefGroupId = 0;
 	
 	private String corpusInformation = null;
 	private List<TreeAndSentence> listTrees = null;
+	private TreeCoreferenceInformation<BasicNode> coreferenceInformation = null;
 
 }

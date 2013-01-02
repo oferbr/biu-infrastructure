@@ -2,7 +2,6 @@ package ac.biu.nlp.nlp.instruments.inflector;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -216,43 +215,42 @@ public class EnglishLemmaInflector
 		// read the irregularsFile, line by line
 		if(irregularsFile != null)
 		{
-			BufferedReader verbsReader;
+
 			try
 			{
-				verbsReader = new BufferedReader(new FileReader(irregularsFile));
-			}
-			catch (FileNotFoundException e)
-			{
-				 throw new InflectorException(irregularsFile + " doesn't exist", e);
-			}
-			
-			try
-			{
-				String line;
-				while((line = verbsReader.readLine()) != null)
+				BufferedReader verbsReader = new BufferedReader(new FileReader(irregularsFile));
+				try
 				{
-					line = line.trim().toLowerCase();
-					int firstSpace = line.indexOf(SPACE);
-					if( firstSpace >= 0)
-					{              
-						String lemma = line.substring(firstSpace + 1);
-						String inflected = line.substring(0, firstSpace);
-	                        
-						if (isVerbs)
-						{
-							// Is this lemma a most irregular verb from IRREGULAR_VERBS?
-							if (!isMostIrregularLemma(lemma))
-								// classify this inflected word
-								classifyAndAddInflectedVerb(lemma, inflected, table);
+					String line;
+					while((line = verbsReader.readLine()) != null)
+					{
+						line = line.trim().toLowerCase();
+						int firstSpace = line.indexOf(SPACE);
+						if( firstSpace >= 0)
+						{              
+							String lemma = line.substring(firstSpace + 1);
+							String inflected = line.substring(0, firstSpace);
+
+							if (isVerbs)
+							{
+								// Is this lemma a most irregular verb from IRREGULAR_VERBS?
+								if (!isMostIrregularLemma(lemma))
+									// classify this inflected word
+									classifyAndAddInflectedVerb(lemma, inflected, table);
+							}
+							else	// is nouns
+								addInflectedNoun(lemma, inflected, table);
 						}
-						else	// is nouns
-							addInflectedNoun(lemma, inflected, table);
 					}
+				}
+				finally
+				{
+					verbsReader.close();
 				}
 			}
 			catch (IOException e)
 			{
-				 throw new InflectorException("Error reading from " + irregularsFile, e);
+				throw new InflectorException("Error reading from " + irregularsFile, e);
 			}
 		}
 	}

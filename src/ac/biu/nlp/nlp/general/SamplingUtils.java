@@ -96,8 +96,10 @@ public class SamplingUtils {
 	 * @see http://eyalsch.wordpress.com/2010/04/01/random-sample/
 	 */
 	public static <T> Set<T> pickRandomSample(List<T> items, int sampleSize) {   
-		HashSet<T> res = new HashSet<T>(sampleSize); 
 		int n = items.size();
+		if (sampleSize>=n)
+			return new HashSet<T>(items);  // return all items as sample
+		HashSet<T> res = new HashSet<T>(sampleSize); 
 		for(int i=n-sampleSize;i<n;i++) {
 			int pos = random.nextInt(i+1);
 			T item = items.get(pos);

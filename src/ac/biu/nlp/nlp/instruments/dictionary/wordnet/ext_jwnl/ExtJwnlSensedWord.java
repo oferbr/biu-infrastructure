@@ -63,6 +63,8 @@ public class ExtJwnlSensedWord implements SensedWord {
 	 * @throws WordNetException 
 	 */
 	ExtJwnlSensedWord(Word wordObj, ExtJwnlDictionary extJwnlDictionary) throws WordNetException {
+		if (wordObj==null)
+			throw new WordNetException("wordObj is null!");
 		this.wordObj = wordObj;
 		this.synset = new ExtJwnlSynset(extJwnlDictionary, wordObj.getSynset());
 		this.word = wordObj.getLemma();

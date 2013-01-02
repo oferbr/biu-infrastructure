@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -31,6 +32,21 @@ public class Utils
 {
 	public static final long MEGA = 1048576;
 	public static final String COMPILED_CLASS_EXTENSION = ".class";
+	
+	/**
+	 * Return a sorted list with the collection's elements.
+	 * 
+	 * @param collection
+	 * @return
+	 */
+	public static <T extends Comparable<T>> List<T> getSorted(Collection<T> collection)
+	{
+		List<T> ret = new ArrayList<T>(collection.size());
+		ret.addAll(collection);
+		Collections.sort(ret);
+		return ret;
+	}
+	
 	/**
 	 * Constructs a new java.util.Collection that will contain the given array elements.
 	 * 
@@ -126,9 +142,19 @@ public class Utils
 		E ret = null;
 		if (collection!=null) { if (collection.size()>0)
 		{
-			E[] array = collectionToArray(collection);
-			int index = random.nextInt(array.length);
-			ret = array[index];
+			int randomIndex = random.nextInt(collection.size());
+			int iterIndex = 0;
+			Iterator<? extends E> iterator = collection.iterator();
+			E element;
+			for (element = iterator.next();iterator.hasNext() && iterIndex!=randomIndex;++iterIndex,element = iterator.next())
+			{
+			}
+			ret = element;
+			
+			
+//			E[] array = collectionToArray(collection);
+//			int index = random.nextInt(array.length);
+//			ret = array[index];
 		}}
 		return ret;
 	}
@@ -489,5 +515,36 @@ public class Utils
 			return cls.getClassLoader().getResource(cls.getName().replace(".", "/")+COMPILED_CLASS_EXTENSION).getPath();
 	}
 
+	/**
+	 * Return a list of size <code>size</code> which has elements from the
+	 * given list, chosen randomly.
+	 * 
+	 * @param list the original list
+	 * @param size the size of the returned list
+	 * @return a list of <code>size</code> elements chosen randomly from the original list.
+	 */
+	public static <T> List<T> randomlyPickElements(List<T> list, int size)
+	{
+		@SuppressWarnings("unchecked")
+		T[] array = (T[]) list.toArray();
+		
+		Random random = new Random();
+		
+		for (int index=0;index<size;++index)
+		{
+			int chooseIndex = random.nextInt(array.length);
+			T temp = array[index];
+			array[index] = array[chooseIndex];
+			array[chooseIndex] = temp;
+		}
+		
+		List<T> returnList = new ArrayList<T>(size);
+		for (int index=0;index<size;++index)
+		{
+			returnList.add(array[index]);
+		}
+		
+		return returnList;
+	}
 
 }

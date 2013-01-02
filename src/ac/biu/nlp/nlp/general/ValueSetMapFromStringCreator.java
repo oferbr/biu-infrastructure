@@ -1,7 +1,7 @@
 package ac.biu.nlp.nlp.general;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -173,7 +173,92 @@ public class ValueSetMapFromStringCreator {
 			throw new ConfigurationException("configuration params should contain either table_file or wiki_file ("+params+")");
 		}
 	}
+	
+	
+	/**
+	 * Build a map from string to a ValueSetMap from text in the following format:
+	 * <pre>
+	 * 
+	 * == key1 ==
+	 * * key11 -> value11
+	 * * key12 -> value12
+	 * ...
+	 * 
+	 * == key2 ==
+	 * * key21 -> value21
+	 * * key22 -> value22
+	 * ...
+	 * </pre>
+	 * @return the map.
+	 */
+	public static Map<String, ValueSetMap<String,String>> mapOfMapsFromText(String text, String separatorPattern) {
+		return mapOfMapsFromText(text.split("[\\n\\r]+"),separatorPattern);
+	}
 
+	/**
+	 * @see #mapOfMapsFromText(String)
+	 */
+	public static Map<String, ValueSetMap<String, String>> mapOfMapsFromText(String[] lines, String separatorPattern) {
+		return mapOfMapsFromText(Arrays.asList(lines),separatorPattern);
+	}
+
+	/**
+	 * @see #mapOfMapsFromText(String)
+	 */
+	public static Map<String, ValueSetMap<String, String>> mapOfMapsFromText(List<String> lines, String separatorPattern) {
+		Map<String,ValueSetMap<String,String>> theMapOfMaps = new TreeMap<String,ValueSetMap<String,String>>();
+		String currentTitle = null;
+		Matcher matcher = null;
+		for (String line: lines) {
+			line = line.replaceAll(commentPattern.pattern(), "");
+			line = line.trim();
+			if ((matcher = headingMatcher(line))!=null) {
+				currentTitle = matcher.group(1).trim();
+			} else if ((matcher = listItemMatcher(line))!=null && currentTitle!=null) {
+				String pair = matcher.group(3);
+				String[] fields = pair.split(separatorPattern);
+				if (fields.length<2)  // skip empty lines
+					continue;
+				if (!theMapOfMaps.containsKey(currentTitle))
+					theMapOfMaps.put(currentTitle, new SimpleValueSetMap<String,String>());
+				theMapOfMaps.get(currentTitle).put(fields[0].trim(), fields[1].trim());
+			}
+		}
+		return theMapOfMaps;
+	}
+	
+	/**
+	 * Build a string-to-string bidirectional multi-map according to the specification in the given configuration params.
+	 * 
+	 * @param params 
+	 * <p>should include EITHER the following params:
+	 * <li>table_file - path or URL of a text-file that contains the map, in two-column format; see {@link #mapFromTwoColumnsText}.
+	 * <li><li>(can be replaced with table_contents - the contents of the file)
+	 * <li>table_separator - the pattern that separates between the columns in the file, e.g. "->".
+	 * <p>OR the following params: 
+	 * <li>wiki_file - path or URL of a text-file that contains the map, in wiki-text format; see {@link #mapFromWikiText}.
+	 * <li><li>(can be replaced with wiki_contents - the contents of the file)
+	 * 
+	 * @return a map built from that text file.
+	 * @throws ConfigurationException 
+	 * @throws IOException 
+	 */
+	public static Map<String,ValueSetMap<String,String>> mapOfMapsFromConfigurationParams(ConfigurationParams params) throws IOException, ConfigurationException {
+		if (params.containsKey("file")) {
+			return mapOfMapsFromText(
+					FileUtils.loadFileOrUrlToList(params.getString("file")),
+					params.getString("table_separator"));
+		} else if (params.containsKey("contents")) {
+				return mapOfMapsFromText(
+						params.getString("contents").split("[\n\r]+"),
+						params.getString("table_separator"));
+		} else {
+			throw new ConfigurationException("configuration params should contain either 'file' or 'contents' ("+params+")");
+		}
+	}
+	
+	
+	
 
 	/**
 	 * Convert the given ValueSetMap to a string of the form:
@@ -281,5 +366,15 @@ public class ValueSetMapFromStringCreator {
 			//	* animal
 			//	== cow ==
 			//	* animal
+		Map<String,ValueSetMap<String,String>> theMapOfMaps = ValueSetMapFromStringCreator.mapOfMapsFromText("" +
+				"== {action} ==\n" +
+				"* I offer {issuevalue} -> OFFER({issuevalue})\n" +
+				"* Will you agree to {issuevalue}? -> QUERY({issuevalue})\n" +
+				"\n" +
+				"== {issuevalue} ==\n" +
+				"* A salary of {number}     -> Salary={number}\n" +
+				"* {number} percent pension -> Pension Fund={number}\n" +
+				"", "->");
+		System.out.println(theMapOfMaps);
 	}
 }

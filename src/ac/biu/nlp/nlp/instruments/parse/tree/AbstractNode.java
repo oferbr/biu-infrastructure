@@ -93,7 +93,7 @@ public abstract class AbstractNode<T,S extends AbstractNode<T,S>> implements Ser
 	 */
 	@Override
 	public String toString() {
-		return "AbstractNode [info=" + info + "]";
+		return "AbstractNode [info=" + getInfo() + "]";
 	}
 
 

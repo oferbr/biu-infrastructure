@@ -5,7 +5,7 @@ package ac.biu.nlp.nlp.datasets.rte7main;
 
 /**
  * @author amnon
- * @since 31 αΰεβ 2011
+ * @since 31 Γ‘Γ Γ₯Γ’ 2011
  * 
  */
 public class TestsetRte7NoveltyFileSystemNames extends	DefaultRte7NoveltyFileSystemNames {
